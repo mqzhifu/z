@@ -1,0 +1,144 @@
+<div class="page-sidebar-wrapper">
+    <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+    <!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+    <div class="page-sidebar md-shadow-z-2-i  navbar-collapse collapse">
+        <!-- BEGIN SIDEBAR MENU -->
+        <!-- DOC: Apply "page-sidebar-menu-light" class right after "page-sidebar-menu" to enable light sidebar menu style(without borders) -->
+        <!-- DOC: Apply "page-sidebar-menu-hover-submenu" class right after "page-sidebar-menu" to enable hoverable(hover vs accordion) sub menu mode -->
+        <!-- DOC: Apply "page-sidebar-menu-closed" class right after "page-sidebar-menu" to collapse("page-sidebar-closed" class must be applied to the body element) the sidebar sub menu mode -->
+        <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+        <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
+        <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+        <ul class="page-sidebar-menu " data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+            <li class="start  {if $ctrl == 'index'}active open{/if}">
+                <a href="/admin">
+                    <i class="icon-home"></i>
+                    <span class="title">首页</span>
+                </a>
+            </li>
+
+            <li class="{if $ctrl == 'wxuser'}active open{/if}">
+                <a href="?ctrl=wxuser">
+                    <i class="icon-envelope-open"></i>
+                    <span class="title">用户/关注</span>
+                </a>
+            </li>
+
+            <li class="{if $ctrl == 'msglog'}active open{/if}">
+                <a href="?ctrl=msglog">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">接收log</span>
+                </a>
+            </li>
+
+            <!--<li class="{if $ac == 'setSend'}active open{/if}">-->
+                <!--<a href="/?ac=setSend">-->
+                    <!--<i class="icon-paper-plane"></i>-->
+                    <!--<span class="title">回复log</span>-->
+                <!--</a>-->
+            <!--</li>-->
+
+            <li class="{if $ctrl == 'schedule'}active open{/if}">
+                <a href="?ctrl=schedule">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">行程</span>
+                </a>
+            </li>
+
+
+            <li class="{if $ctrl == 'order'}active open{/if}">
+                <a href="?ctrl=order">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">订单</span>
+                </a>
+            </li>
+
+
+
+
+
+            <li class="{if $ctrl == 'server'}active open{/if}">
+                <a href="?ctrl=server">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">客服列表</span>
+                </a>
+            </li>
+
+            <!--<li class="{if $ac == 'setSend'}active open{/if}">-->
+                <!--<a href="?ctrl=session&ac=unprocess">-->
+                    <!--<i class="icon-paper-plane"></i>-->
+                    <!--<span class="title">待接入</span>-->
+                <!--</a>-->
+            <!--</li>-->
+
+            <li class="{if $ctrl == 'session' && $ac=='process'}active open{/if}">
+                <a href="?ctrl=session&ac=process">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">我的#接入#会话</span>
+                </a>
+            </li>
+
+
+            <li class="{if $ctrl == 'session' && $ac=='index'}active open{/if}">
+                <a href="?ctrl=session">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">会话日志</span>
+                </a>
+            </li>
+
+            <li class="{if $ctrl == 'sessmsg' }active open{/if}">
+                <a href="?ctrl=sessmsg">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">消息</span>
+                </a>
+            </li>
+
+            <li class="{if $ctrl == 'groupmsg' }active open{/if}">
+                <a href="?ctrl=groupmsg">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">群发</span>
+                </a>
+            </li>
+
+            <li class="{if $ctrl == 'const' }active open{/if}">
+                <a href="?ctrl=const">
+                    <i class="icon-paper-plane"></i>
+                    <span class="title">常量</span>
+                </a>
+            </li>
+
+
+
+
+
+
+            <li class="{if $ac == 'upps'}active open{/if}">
+                <a href="?ctrl=index&ac=upps">
+                    <i class="fa fa-briefcase"></i>
+                    <span class="title">修改密码</span>
+                </a>
+            </li>
+
+
+
+            <!--<li class="last ">-->
+            <!--<a href="javascript:;">-->
+            <!--<i class="icon-pointer"></i>-->
+            <!--<span class="title">Maps</span>-->
+            <!--<span class="arrow "></span>-->
+            <!--</a>-->
+            <!--<ul class="sub-menu">-->
+            <!--<li>-->
+            <!--<a href="maps_google.html">-->
+            <!--Google Maps</a>-->
+            <!--</li>-->
+            <!--<li>-->
+            <!--<a href="maps_vector.html">-->
+            <!--Vector Maps</a>-->
+            <!--</li>-->
+            <!--</ul>-->
+            <!--</li>-->
+        </ul>
+        <!-- END SIDEBAR MENU -->
+    </div>
+</div>

@@ -1,0 +1,54 @@
+<?php
+$db_config =  array(
+		'local_test'=>
+		array(
+				'type'=>'mysql',
+				'host'=>'127.0.0.1',
+				'user'=>'root',
+				'pwd'=>'root',
+				'port'=>'3306',
+				'db_name'=>'test',
+				'db_preifx'=>''
+		),
+		'local_information_schema'=>
+		array(
+				'type'=>'mysql',
+				'host'=>'127.0.0.1',
+				'user'=>'root',
+				'pwd'=>'root',
+				'port'=>'3306',
+				'db_name'=>'information_schema',
+				'db_preifx'=>''
+        ),
+		'test_information_schema'=>
+		array(
+				'type'=>'mysql',
+				'host'=>'114.112.64.130',
+				'user'=>'root',
+				'pwd'=>'mqzhifu',
+				'port'=>'3306',
+				'db_name'=>'information_schema',
+				'db_preifx'=>''
+		),
+        'assistant'=>
+            array(
+                'type'=>'mysql',
+                'host'=>'127.0.0.1',
+                'user'=>'root',
+                'pwd'=>'root',
+                'port'=>'3306',
+                'db_name'=>'assistant',
+                'db_preifx'=>''
+            ),
+		'majiang'=>
+			array(
+				'type'=>'mysql',
+				'host'=>'127.0.0.1',
+				'user'=>'root',
+				'pwd'=>'root',
+				'port'=>'3306',
+				'db_name'=>'majiang',
+				'db_preifx'=>''
+			),
+);
+$GLOBALS['db_config'] = $db_config;

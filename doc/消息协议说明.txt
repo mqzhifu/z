@@ -1,0 +1,48 @@
+消息协议用来传输json格式用户数据，比如开局，抓拍，吃差，和牌
+
+建立连接流程：
+1. 客户端通过http(s)协议登录系统
+2. 系统返回websocket服务器IP地址、端口号、用户authcode
+3. 客户端通过websocket服务器IP和端口号发起“建立连接协议”请求
+4. 服务端通过authcode对应用户数据的kv形式保存用户数据(redis/mysql)
+
+用户数据结构：
+用户数据保存在内存中，当需要为用户推送消息时使用
+key：用户的authcode，例：acienagonc739814hajjkcjn
+value：json字符串
+格式：
+{
+	sock_fd: 9,							//服务端 socket client 描述符
+	connect_time: 1494321560,			//连接时间
+	last_heartbeat_time: 1494321560,	//最后心跳时间
+	status: 1,							//状态，1 在线，2 离线，3 游戏中，4 托管
+}
+
+基础协议数据：
+{
+	req_action:"heartbeat"	//请求方法
+	unixtime:1494321560		//请求时间（戳）
+	req_data:{}				//请求参数
+}
+
+协议说明：
+（参数均为基础协议数据中的req_data的子项）
+
+建立连接
+{
+	authcode:"acienagonc739814hajjkcjn",		//用户登录标志
+}
+
+心跳
+{
+	authcode:"acienagonc739814hajjkcjn",		//用户登录标志
+}
+
+开局
+{
+	room_id:1,		//房间ID
+	group_id:101,	//组ID(局ID)
+	authcode:"acienagonc739814hajjkcjn",		//用户登录标志
+}
+
+

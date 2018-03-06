@@ -1,0 +1,7 @@
+<?php
+class ##classname##M_CLASS extends DbLib {
+	function __construct(){
+		$this->table = '##table';
+		$this->pk = '##primary';
+    }
+}

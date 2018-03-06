@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ ! -n "$1" ] ;then 
+`echo "$1 para not 1.." >> /tmp/a.log`
+exit
+fi
+
+tel=$1
+timestamp=$(date +%s)
+
+ps="065824_${timestamp}_topsky"
+ps_new=`echo -n $ps|md5sum|cut -d ' ' -f1`
+
+url="http://admin.sms9.net/houtai/sms.php?cpid=3639&password=$ps_new&tele=$tel&channelid=2410&timestamp=$timestamp&msg=$2"
+`echo $url >> /tmp/a.log`
+echo $url
+curl "$url"
