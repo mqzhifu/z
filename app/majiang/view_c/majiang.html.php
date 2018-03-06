@@ -69,7 +69,7 @@
 <script src="/www/assets/global/plugins/jquery.min.js" type="text/javascript" ></script>
 
 <script>
-    var uid = {if $uid}{$uid}{else}0{/if};
+    var uid = <?php if($uid){ ?><?php echo $uid; ?><?php }else{ ?>0<?php } ?>;
 
     function filterUid(uid){
         if(!uid || uid == 0 || typeof(uid) =="undefined" || isNaN(uid) )
@@ -159,38 +159,9 @@
                     init4LineRecord();
                     //废弃牌的处理
                     initTrash();
-                    //抓牌-打牌-等待
-                    initCurrentStatus(uid,dd.data.current_catch_uid,dd.data.current_throw_uid);
-
                 }
             }
         });
-    }
-    //接收服务端发送的消息，更新当前页面信息
-    function receiveSysMsg(){
-        var status = 0;
-        if(status == 1){
-            //其它用户已准备
-
-        }else if(status == 2){
-            //4位用户都已准备初始化牌局
-        }else if(status == 3){
-            //牌已经发放完毕，抓牌-等待
-        }else if(status == 4){
-            //用户已经打牌
-        }else if(status == 5){
-            //确认 吃碰胡杠
-        }
-    }
-
-
-    function initCurrentStatus(uid,current_uid){
-        if(uid == current_uid){//当前用户要抓牌
-
-        }else{
-
-        }
-
     }
     //初始化用户手里的牌
     function initUserRecord(user_record,user_sort) {

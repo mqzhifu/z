@@ -2,7 +2,8 @@
 SQLyog Ultimate v11.24 (32 bit)
 MySQL - 5.6.25-enterprise-commercial-advanced-log : Database - majiang
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -29,7 +30,7 @@ CREATE TABLE `const` (
   `a_time` int(11) DEFAULT NULL,
   `up_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='常量表';
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='常量表';
 
 /*Table structure for table `group` */
 
@@ -46,7 +47,7 @@ CREATE TABLE `group` (
   `current_record_num` int(11) DEFAULT NULL COMMENT '当前打到第几张牌了',
   `current_uid` int(11) DEFAULT NULL COMMENT '当前抓牌的人',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `group_record` */
 
@@ -66,7 +67,7 @@ CREATE TABLE `group_record` (
   `is_show` tinyint(1) DEFAULT '0' COMMENT '1明牌显示2不显示',
   `change_id` int(11) DEFAULT NULL COMMENT '牌的ID',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `group_user` */
 
@@ -84,7 +85,7 @@ CREATE TABLE `group_user` (
   `timeout` int(11) DEFAULT NULL COMMENT '报名失效时间',
   `sys_control` tinyint(1) DEFAULT '0' COMMENT '0未托管1系统接管',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `record_change` */
 
@@ -137,7 +138,7 @@ CREATE TABLE `room` (
   `uid` int(11) DEFAULT NULL COMMENT '归属用户',
   `dealer_uid` int(11) DEFAULT NULL COMMENT '当前庄家用户',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `user` */
 
@@ -153,9 +154,18 @@ CREATE TABLE `user` (
   `phone` char(11) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+insert  into `user`(`id`,`uname`,`ps`,`a_time`,`u_time`,`gold_coin`,`phone`,`email`) values
+ (1,'zhangsan','',1520328084,0,10,NULL,NULL),
+ (2,'lixin','',1520327084,0,20,NULL,NULL),
+ (3,'wangwu','',1520326084,NULL,30,NULL,NULL),
+ (4,'maliu','',1520325084,NULL,40,NULL,NULL);
+
+
+

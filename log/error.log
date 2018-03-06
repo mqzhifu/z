@@ -1,0 +1,1 @@
+select * from `record_change` where  group_id = 2  uid =  3  You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'uid =  3' at line 1|2018-03-06 19:08:49|

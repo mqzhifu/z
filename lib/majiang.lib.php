@@ -189,11 +189,18 @@ class majiangLib{
             return out_err('所有牌均以抓完');
         }
 
+
+        if($group['current_throw_uid']){
+            return out_err('该用户抓牌后，还没有打牌，请等待用户打出一张牌');
+        }
+
         //找出摸牌的顺序的人
         $uids = split_arr($group['uids'],'uid');
         $next_uid = $this->getDealerUid($uids,$uid,1);
         if($next_uid != $uid)
             return out_err("抱歉您不是下一步摸牌的人");
+
+
 
 
         //上一张牌的数字+1，计算出下一张，也就是当前牌的ID
@@ -216,7 +223,12 @@ class majiangLib{
         if($record['uid'] != $uid)
             return out_err('该张牌不是您的');
 
+
+        $user_group = GroupUserModel::db()->getOne(" uid = $uid and status = 2");
+//        $group = GroupModel::db()->getById($user_group['group_id']);
+
         GroupRecordModel::upById(array('status'=>2),$record['id']);
+        GroupModel::upById(array('current_throw_uid'=>0),$user_group['group_id']);
 
     }
     //吃 碰 杠 胡
@@ -326,6 +338,9 @@ class majiangLib{
             $group_user = $user_group_info['group_user'];
             $user_dir = $user_group_info['user_dir'];
 
+
+            $group_info = GroupModel::db()->getById($user_status['group_id']);
+
             //废弃的牌
             $trash = GroupRecordModel::db()->getAll(" status = 2 and group_id = ".$user_status['group_id'],'','title');
             //不能抓的牌-且可以查看的2张牌
@@ -335,7 +350,7 @@ class majiangLib{
             foreach($group_user as $k=>$v){
                 $user_record[$v] = GroupRecordModel::db()->getAll(" status = 1 and uid = $v and group_id = ".$user_status['group_id'] . " order by title " ,'','title');
                 //吃 碰 杠
-                $record_change = RecordChangeModel::db()->getAll(" group_id = ".$user_status['group_id']  . "  uid =  ".$v);
+                $record_change = RecordChangeModel::db()->getAll(" group_id = ".$user_status['group_id']  . " and  uid =  ".$v);
                 if(!$record_change)
                     continue;
 
@@ -358,13 +373,16 @@ class majiangLib{
             $user_sort = $this->getGroupUserOrderBySelf($group_user,$uid);
 
             $rs = array(
+                //弃牌
                 'trash'=>$trash,
+                //用户手牌
                 'user_record'=>$user_record,
                 'no_record_show'=>$no_record,
                 'group_user'=>$group_user,
                 'dealer_uid'=>$room['dealer_uid'],
                 'user_dir_desc'=>$user_dir,
                 'user_sort'=>$user_sort,
+                'current_catch_uid'=>$group_info['current_catch_uid'],
             );
 
             return out_ok($rs);

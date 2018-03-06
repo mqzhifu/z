@@ -1,5 +1,5 @@
 <?php
-class RecordChangeModel {
+class RecordStatusModel {
 	static $_table = 'record_status';
 	static $_pk = 'id';
 	static $_db = null;
