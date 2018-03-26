@@ -21,7 +21,7 @@ class BaseCtrl{
 
         $this->_adminid = $this->_sess->getValue('id');
 
-        $this->init_css_ds();
+        $this->init_css_js();
         $this->assign("uname",$this->_sess->getValue('uname'));
 
     }
@@ -70,7 +70,7 @@ class BaseCtrl{
         $this->_assign[$k] = $v;
     }
 
-    function init_css_ds(){
+    function init_css_js(){
         $this->addCss('/assets/global/google/font.css');
 
 

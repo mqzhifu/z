@@ -11,6 +11,7 @@ class DbLib{
 	//读取数据库配置信息
     public function __construct($config='',$table = '',$pk = ''){
         if( $config ){
+			//验证DB配置信息
             $config = $this->authConfig($config);
             $this->config = $config;
         }
