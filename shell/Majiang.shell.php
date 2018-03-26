@@ -69,7 +69,7 @@ class Majiang{
 //			echo "client-{$fd} is closed\n";
 //		});
 //
-//		$ws->start();
+		$ws->start();
 
 	}
 
