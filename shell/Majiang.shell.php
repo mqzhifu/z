@@ -141,5 +141,5 @@ class Majiang{
 }
 
 
-$r = new Chat(null) ;
+$r = new Majiang(null) ;
 $r->run(null ) ;
