@@ -377,7 +377,7 @@
         alert(msg);
     };
 
-    function song(){
+    function send_server(){
         //向服务器发送数据
         websocket.send('aaa');
     }
@@ -394,6 +394,8 @@
     websocket.onerror = function (evt, e) {
         alert('Error occured: ' + evt.data);
     };
+
+    send_server();
 
 </script>
 
