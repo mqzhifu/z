@@ -195,7 +195,7 @@ function out($code = 999,$msg = '',$err ,$type = 'ajax' ,$uid = 0 ,$isLog = 0){
     }
 }
 
-function __autoload($class){
+function autoload($class){
 	if( strpos($class,M_CLASS) !== false){
 		
 		$l = strpos($class,M_CLASS);

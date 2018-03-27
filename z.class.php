@@ -107,7 +107,7 @@ class Z{
 		// 设定错误和异常处理
 		set_error_handler(array('ExceptionFrameLib','appError'));
 // 		set_exception_handler(array('ExceptionFrameLib','appException'));
-		spl_autoload_register('__autoload');//自动加载类
+		spl_autoload_register('autoload');//自动加载类
 		//===========内存信息==================
 		define('MEMORY_LIMIT_ON',function_exists('memory_get_usage'));
 		if(MEMORY_LIMIT_ON) $GLOBALS['start_use_mems'] = memory_get_usage();
