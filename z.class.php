@@ -214,12 +214,12 @@ class Z{
 	}
 	//语言包常量
 	static function initLanguageConst(){
-//		$data = ConstModel::db()->getAll();
-//		if($data){
-//			foreach($data as $k=>$v){
-//				$GLOBALS['LANG'][$v['key']] = $v['content'];
-//			}
-//		}
+		$data = ConstModel::db()->getAll();
+		if($data){
+			foreach($data as $k=>$v){
+				$GLOBALS['LANG'][$v['key']] = $v['content'];
+			}
+		}
 	}
 }
 
