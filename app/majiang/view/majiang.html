@@ -375,12 +375,13 @@
     websocket.onopen = function (evt) {
         msg = websocket.readyState;
         alert(msg);
+        websocket.send('aaa');
     };
 
-    function send_server(){
+//    function send_server(){
         //向服务器发送数据
-        websocket.send('aaa');
-    }
+//        websocket.send('aaa');
+//    }
 //    //监听关闭
 //        websocket.onclose = function (evt) {
 //            console.log("Disconnected");
@@ -395,7 +396,7 @@
         alert('Error occured: ' + evt.data);
     };
 
-    send_server();
+//    send_server();
 
 </script>
 
