@@ -106,7 +106,7 @@ class Z{
 		include_once "global.inc.php";//公共全局变量
 
 		spl_autoload_register('autoload');//自动加载类
-		
+
 		// 设定错误和异常处理
 		set_error_handler(array('ExceptionFrameLib','appError'));
 // 		set_exception_handler(array('ExceptionFrameLib','appException'));
