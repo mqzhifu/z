@@ -373,7 +373,8 @@
     var wsServer = 'ws://39.107.127.244:9502';
     var websocket = new WebSocket(wsServer);
     websocket.onopen = function (evt) {
-        msg.innerHTML = websocket.readyState;
+        msg = websocket.readyState;
+        alert(msg);
     };
 
     function song(){

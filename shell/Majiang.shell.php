@@ -16,6 +16,7 @@ class Majiang{
 
     public function run($attr){
 		$ip = "127.0.0.1";
+        $ip = "0.0.0.0";
 		$port = 9502;
 
 		//创建websocket服务器对象，监听0.0.0.0:9502端口
