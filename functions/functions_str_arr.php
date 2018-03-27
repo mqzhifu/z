@@ -228,6 +228,7 @@ function somearr_to_onearr($somearr){
 
 //将字节转换成MB GB KB
 function return_bytes($val) {
+    return 1;
     $val = trim($val);
     $last = strtolower($val{strlen($val)-1});
     switch($last) {
