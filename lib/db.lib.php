@@ -99,7 +99,7 @@ class DbLib{
         N('db_query',1);//记录共执行了多少条SQL
         // 记录开始执行时间
         G('queryStartTime');
-        $this->mQueryId = mysql_query($sql, $this->mDb);
+        $this->mQueryId = mysqli_query($this->mDb,$sql);
         $this->debug();//SQL日志
         if ( false === $this->mQueryId ) {
             $err  = $this->error();
