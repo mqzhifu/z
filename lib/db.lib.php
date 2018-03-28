@@ -8,6 +8,7 @@ class DbLib{
 	public $mQueryId;//mysql_query 返回值
 	public $mTransaction = 0;//是否为事务，如果是则出现错误后是要抛出异常的
 	public $mMasterSlave = MASTER_SLAVE;//是否开启DB主丛模式
+	public $mMysqli = 0;
 	//读取数据库配置信息
     public function __construct($config='',$table = '',$pk = ''){
         if( $config ){
@@ -21,6 +22,9 @@ class DbLib{
         if($pk)
             $this->pk = $pk;
     }
+
+
+
     //静态化
     static function getDbStatic($config='',$table = '',$pk = ''){
     	return new self($config,$table,$pk);
@@ -51,6 +55,11 @@ class DbLib{
     protected function initConnect() {
     	if ( !$this->mDb ) $this->mDb = $this->connect();
     }
+	//万恶的7，必须得用MYSQL-i
+	function adapter(){
+		var_dump(PHP_VERSION);exit;
+	}
+
 	//连接数据库
     public function connect($config='') {
 		//初始化配置信息
