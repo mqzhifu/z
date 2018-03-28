@@ -19,6 +19,8 @@ class Majiang{
         $ip = "0.0.0.0";
 		$port = 9502;
 
+        $i = 1;
+        $s = "cnt:";
 		//创建websocket服务器对象，监听0.0.0.0:9502端口
 		$ws = new swoole_websocket_server($ip, $port);
 //        $ws->set(array(
@@ -32,8 +34,12 @@ class Majiang{
 
         $ws->on('message', function (swoole_websocket_server $ws, $frame) {
             echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+            $uid = $frame->data;
             $ws->push($frame->fd, "this is server");
         });
+
+        $i++;
+        echo $s.$i."\n";
 
 
 
