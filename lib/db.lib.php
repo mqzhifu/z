@@ -62,7 +62,7 @@ class DbLib{
 
 	//连接数据库
     public function connect($config='') {
-		var_dump(PHP_VERSION);exit;
+//		$v = substr(PHP_VERSION,0,1);
 		//初始化配置信息
     	if($config){
     		$config = $this->authConfig($config);
@@ -77,18 +77,14 @@ class DbLib{
     	//是否为长连接
         if(!defined('MYSQL_PCONNECT')){
         	$func = 'mysql_connect';
-        	if ( ! function_exists('mysql_connect') ) {
-        		$this->mDb = mysqli_connect( $host, $config['user'], $config['pwd']);
-        	}else{
-    			$this->mDb = mysql_connect( $host, $config['user'], $config['pwd']);
-        	}
+			$this->mDb = mysqli_connect( $host, $config['user'], $config['pwd']);
     	}else{
     		$func = 'mysql_pconnect';
     		$this->mDb = mysql_pconnect( $host, $config['user'], $config['pwd']);
     	}
         if ( !$this->mDb ) 
             stop("connect db error:". mysql_error() . $func ." [connect db error]",'DB');
-        if(!mysql_select_db($config['db_name'], $this->mDb))
+        if(!mysqli_select_db($config['db_name'], $this->mDb))
         	stop("connect db error:". mysql_error() ." [select_db error]",'DB');
 		//设置字符集
         mysql_query("SET NAMES '".DB_CHARSET."'", $this->mDb);
