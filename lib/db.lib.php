@@ -122,7 +122,7 @@ class DbLib{
         N('db_write',1);
         // 记录开始执行时间
         G('queryStartTime');
-        $result =   mysql_query($sql, $this->mDb) ;
+        $result =   mysqli_query( $this->mDb,$sql) ;
         $this->debug();
         if ( false === $result) {
            $err = $this->error();
@@ -132,8 +132,8 @@ class DbLib{
             	stop($err . $sql);
             }
         } else {
-            $this->mNumRows = mysql_affected_rows($this->mDb);
-            $this->mLastAddId = mysql_insert_id($this->mDb);
+            $this->mNumRows = mysqli_affected_rows($this->mDb);
+            $this->mLastAddId = mysqli_insert_id($this->mDb);
             return $this->mNumRows;
         }
     }
@@ -269,13 +269,13 @@ class DbLib{
     }
     //释放查询资源
     public function free() {
-    	mysql_free_result($this->mQueryId);
+    	mysqli_free_result($this->mQueryId);
     	$this->mQueryId = null;
     }
     //  SQL指令安全过滤
     public function escapeString($str) {
     	if ( !$this->mDb ) $this->mDb = $this->connect();
-    	return mysql_real_escape_string($str,$this->mDb);
+    	return mysqli_real_escape_string($this->mDb,$str);
     }
 	//debug
     protected function debug() {
@@ -347,7 +347,7 @@ class DbLib{
     	N('db_query',1);//记录共执行了多少条SQL
     	G('queryStartTime');// 记录开始执行时间
     	$this->initConnect();
-    	$rs = mysql_query($sql,$this->mDb);
+    	$rs = mysqli_query($this->mDb,$sql);
     	$this->debug();//SQL日志
     	return $rs;
     }
@@ -497,14 +497,14 @@ class DbLib{
     }
     //数据库错误信息.记录并显示当前的SQL语句
     public function error() {
-    	$this->error = mysql_error($this->mDb);
+    	$this->error = mysqli_error($this->mDb);
     	return $this->error;
     }
     //返回数据集
     private function getDbAll() {
     	$result = array();
     	if($this->mQueryId) {
-	    		while($row = mysql_fetch_assoc($this->mQueryId)){
+	    		while($row = mysqli_fetch_assoc($this->mQueryId)){
 	    			$result[]   =   $row;
 	    		}
     	}
