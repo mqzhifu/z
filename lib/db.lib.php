@@ -62,6 +62,7 @@ class DbLib{
 
 	//连接数据库
     public function connect($config='') {
+		var_dump(PHP_VERSION);exit;
 		//初始化配置信息
     	if($config){
     		$config = $this->authConfig($config);
