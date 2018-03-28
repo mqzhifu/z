@@ -75,19 +75,19 @@ class DbLib{
 
     	$host = $config['host'].($config['port']?":{$config['port']}":'');
     	//是否为长连接
-        if(!defined('MYSQL_PCONNECT')){
+//        if(!defined('MYSQL_PCONNECT')){
         	$func = 'mysql_connect';
 			$this->mDb = mysqli_connect( $host, $config['user'], $config['pwd']);
-    	}else{
-    		$func = 'mysql_pconnect';
-    		$this->mDb = mysql_pconnect( $host, $config['user'], $config['pwd']);
-    	}
+//    	}else{
+//    		$func = 'mysql_pconnect';
+//    		$this->mDb = mysqli_pconnect( $host, $config['user'], $config['pwd']);
+//    	}
         if ( !$this->mDb ) 
-            stop("connect db error:". mysql_error() . $func ." [connect db error]",'DB');
-        if(!mysqli_select_db($config['db_name'], $this->mDb))
-        	stop("connect db error:". mysql_error() ." [select_db error]",'DB');
+            stop("connect db error:". mysqli_error($this->mDb) . $func ." [connect db error]",'DB');
+        if(!mysqli_select_db( $this->mDb,$config['db_name']))
+        	stop("connect db error:". mysqli_error($this->mDb) ." [select_db error]",'DB');
 		//设置字符集
-        mysql_query("SET NAMES '".DB_CHARSET."'", $this->mDb);
+        mysqli_query($this->mDb,"SET NAMES '".DB_CHARSET."'");
         return $this->mDb;
     }
 	//执行查询 返回数据集
