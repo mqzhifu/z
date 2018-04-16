@@ -14,7 +14,7 @@
 
 int main()
 {
-	char sendbuf[BUFFER_SIZE]= "GET / \nHost: 127.0.0.1\n";
+	char sendbuf[BUFFER_SIZE]= "GET / \nHost: 127.0.0.1\nquit";
     char recvbuf[BUFFER_SIZE];
     int sock_cli = socket(AF_INET,SOCK_STREAM, 0);
 
