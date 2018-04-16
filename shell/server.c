@@ -56,6 +56,10 @@ int main(){
 	//ip可是本服务器的ip，也可以用宏INADDR_ANY代替，代表0.0.0.0，表明所有地址
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(int)) == -1) {
+          error("Can't set the reuse option on the socket");
+    }
+
     //对于bind，accept之类的函数，里面套接字参数都是需要强制转换成(struct sockaddr *)
     //bind三个参数：服务器端的套接字的文件描述符，
     if(bind(serverSocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
