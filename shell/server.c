@@ -39,6 +39,10 @@ int main(){
 		perror("create socket failed...");
 		return 1;
 	}
+
+
+	printf("create socket ok.\n");
+
     //将两个结构体的值初始化归0
 	bzero(&server_addr, sizeof(server_addr));
 
@@ -57,6 +61,9 @@ int main(){
         return 1;
     }
 
+    printf("bind socket ok.\n");
+
+
     //设置服务器上的socket为监听状态
     if(listen(serverSocket, 5) < 0)
     {
@@ -64,8 +71,10 @@ int main(){
         return 1;
     }
 
+
+    printf("Listening on port: %d\n", SERVER_PORT);
+
     while(1){
-        printf("Listening on port: %d\n", SERVER_PORT);
         //调用accept函数后，会进入阻塞状态
         //accept返回一个套接字的文件描述符，这样服务器端便有两个套接字的文件描述符，
         //serverSocket和client。
@@ -81,6 +90,10 @@ int main(){
             perror("accept");
             continue;
         }
+
+        printf("accept client:%d.\n",client);
+
+
         printf("\nrecv client data...n");
         //inet_ntoa   ip地址转换函数，将网络字节序IP转换为点分十进制IP
         //表达式：char *inet_ntoa (struct in_addr);
