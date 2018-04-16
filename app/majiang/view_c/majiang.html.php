@@ -159,9 +159,38 @@
                     init4LineRecord();
                     //废弃牌的处理
                     initTrash();
+                    //抓牌-打牌-等待
+                    initCurrentStatus(uid,dd.data.current_catch_uid,dd.data.current_throw_uid);
+
                 }
             }
         });
+    }
+    //接收服务端发送的消息，更新当前页面信息
+    function receiveSysMsg(){
+        var status = 0;
+        if(status == 1){
+            //其它用户已准备
+
+        }else if(status == 2){
+            //4位用户都已准备初始化牌局
+        }else if(status == 3){
+            //牌已经发放完毕，抓牌-等待
+        }else if(status == 4){
+            //用户已经打牌
+        }else if(status == 5){
+            //确认 吃碰胡杠
+        }
+    }
+
+
+    function initCurrentStatus(uid,current_uid){
+        if(uid == current_uid){//当前用户要抓牌
+
+        }else{
+
+        }
+
     }
     //初始化用户手里的牌
     function initUserRecord(user_record,user_sort) {
@@ -341,33 +370,33 @@
 
 
 <script>
-//    var msg = document.getElementById("msg");
-//    var wsServer = 'ws://139.129.243.12:9502';
-//    var websocket = new WebSocket(wsServer);
-//    websocket.onopen = function (evt) {
-//        msg.innerHTML = websocket.readyState;
-//    };
-//
-//    function song(){
-//        var text = document.getElementById('text').value;
-//        document.getElementById('text').value = '';
-//        //向服务器发送数据
-//        websocket.send(text);
+    var wsServer = 'ws://39.107.127.244:9502';
+    var websocket = new WebSocket(wsServer);
+    websocket.onopen = function (evt) {
+        msg = websocket.readyState;
+        alert(msg);
+        websocket.send(uid);
+    };
+
+//    function send_server(){
+        //向服务器发送数据
+//        websocket.send('aaa');
 //    }
 //    //监听关闭
 //        websocket.onclose = function (evt) {
 //            console.log("Disconnected");
 //        };
 //
-//    //onmessage 监听服务器数据推送
-//    websocket.onmessage = function (evt) {
-//        msg.innerHTML += evt.data +'<br>';
-//    //console.log('Retrieved data from server: ' + evt.data);
-//    };
-//    //监听连接错误信息
-//    websocket.onerror = function (evt, e) {
-//        console.log('Error occured: ' + evt.data);
-//    };
+    //onmessage 监听服务器数据推送
+    websocket.onmessage = function (evt) {
+        alert('Retrieved data from server: ' + evt.data);
+    };
+    //监听连接错误信息
+    websocket.onerror = function (evt, e) {
+        alert('Error occured: ' + evt.data);
+    };
+
+//    send_server();
 
 </script>
 
