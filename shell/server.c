@@ -127,7 +127,7 @@ int main(){
 
         }
 
-        iDataNum = strlen(iDataNum);
+        iDataNum = strlen(buffer);
 
         printf("recv_str_num:%d,recv data is %s,send_data:%s\n", iDataNum, buffer,",yes!");
         send(client, buffer, iDataNum, 0);
