@@ -56,7 +56,7 @@ int main(){
 	//ip可是本服务器的ip，也可以用宏INADDR_ANY代替，代表0.0.0.0，表明所有地址
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-
+    //正常一个程序绑定一个端口取消后，30秒内不允许再次绑定，防止ctrl+c无效
     int reuse = 1;
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(int)) == -1) {
           error("Can't set the reuse option on the socket");
@@ -130,7 +130,6 @@ int main(){
 
         char sendata[] = ",yes!";
         strcat(buffer,sendata);
-        printf(buffer);
         printf("%drecv data is %s\n", iDataNum, buffer);
         send(client, buffer, iDataNum, 0);
 
