@@ -109,7 +109,7 @@ int main(){
                 perror("recv");
                 continue;
             }
-            buffer[iDataNum] = '\0';
+//            buffer[iDataNum] = '\0';
             if(strcmp(buffer, "\0") == 0)
                 break;
 
@@ -118,9 +118,14 @@ int main(){
                 break;
 
 
-            printf("%drecv data is %s\n", iDataNum, buffer);
-            send(client, buffer, iDataNum, 0);
+
         }
+
+
+        char sendata[] = ",yes!";
+        strcat(buffer,sendata);
+        printf("%drecv data is %s\n", iDataNum, buffer);
+        send(client, buffer, iDataNum, 0);
 
     }
 
