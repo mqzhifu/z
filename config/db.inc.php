@@ -41,7 +41,7 @@ $db_config =  array(
                 'db_preifx'=>''
             ),
 		'majiang'=>
-			array(
+			array( 
 				'type'=>'mysql',
 				'host'=>'127.0.0.1',
 				'user'=>'root',
