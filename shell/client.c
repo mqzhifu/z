@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <sys/shm.h>
 
-#define MYPORT  80
+#define MYPORT  5555
 #define BUFFER_SIZE 10240
 
 int send_sock()
