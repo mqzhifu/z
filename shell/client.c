@@ -30,8 +30,11 @@ int send_sock()
         exit(1);
     }
 
+    printf("connect s OK.");
     //while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
     //{
+
+        print('send data.');
         send(sock_cli, sendbuf, strlen(sendbuf),0); 
         //if(strcmp(sendbuf,"exit\n")==0)
         //    break;
