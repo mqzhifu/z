@@ -30,7 +30,7 @@ int main()
         exit(1);
     }
 
-    printf("connect s OK.");
+    printf("connect s OK.\n");
     //while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
     //{
 
