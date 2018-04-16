@@ -108,7 +108,7 @@ int main(){
         //表达式：char *inet_ntoa (struct in_addr);
         printf("IP is %s\n", inet_ntoa(clientAddr.sin_addr));
         printf("Port is %d\n", htons(clientAddr.sin_port));
-        while(1){
+//        while(1){
             iDataNum = recv(client, buffer, 1024, 0);
             if(iDataNum < 0)
             {
@@ -116,18 +116,21 @@ int main(){
                 continue;
             }
 
-            printf("%s",buffer);
+//            printf("%s",buffer);
 //            buffer[iDataNum] = '\0';
-            if(strcmp(buffer, "\0") == 0)
-                break;
+//            if(strcmp(buffer, "\0") == 0)
+//                break;
 
-            cnt++;
-            if(cnt > 10)
-                break;
+//            cnt++;
+//            if(cnt > 10){
+//                printf(" err,cnt>10 exec!");
+//                break;
+//            }
 
 
 
-        }
+
+//        }
 
         iDataNum = strlen(buffer);
 
