@@ -12,7 +12,7 @@
 #define MYPORT  5555
 #define BUFFER_SIZE 10240
 
-int send_sock()
+void main(void)
 {
 	char sendbuf[BUFFER_SIZE]= "GET / \nHost: 127.0.0.1\n";
     char recvbuf[BUFFER_SIZE];
@@ -49,7 +49,4 @@ int send_sock()
     return 0;
 }
 
-//void main(void)
-//{
-//    send_sock();
-//}
+
