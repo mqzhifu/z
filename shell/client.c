@@ -14,7 +14,7 @@
 
 int main()
 {
-	char sendbuf[BUFFER_SIZE]= "aaaa\nquit";
+	char sendbuf[BUFFER_SIZE]= "aaaa\0";
     char recvbuf[BUFFER_SIZE];
     int sock_cli = socket(AF_INET,SOCK_STREAM, 0);
 

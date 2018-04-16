@@ -110,14 +110,14 @@ int main(){
                 continue;
             }
             buffer[iDataNum] = '\0';
-            if(strcmp(buffer, "quit") == 0)
+            if(strcmp(buffer, "\0") == 0)
                 break;
 
             cnt++;
             if(cnt > 10)
                 break;
 
-                
+
             printf("%drecv data is %s\n", iDataNum, buffer);
             send(client, buffer, iDataNum, 0);
         }
