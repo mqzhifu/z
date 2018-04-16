@@ -115,6 +115,8 @@ int main(){
                 perror("recv");
                 continue;
             }
+
+            printf("%s",buffer);
 //            buffer[iDataNum] = '\0';
             if(strcmp(buffer, "\0") == 0)
                 break;
@@ -129,7 +131,7 @@ int main(){
 
         iDataNum = strlen(buffer);
 
-        printf("recv_str_num:%d,recv data is %s,send_data:%s\n", iDataNum, buffer,",yes!");
+        printf("recv_str_num:%d,recv data is %s,send_data:%s\n", iDataNum, buffer,"yes!");
         send(client, buffer, iDataNum, 0);
 
     }
