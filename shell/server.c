@@ -97,7 +97,7 @@ int main(){
         printf("accept client:%d.\n",client);
 
 
-        printf("\nrecv client data...n");
+        printf("\nrecv client data...\n");
         //inet_ntoa   ip地址转换函数，将网络字节序IP转换为点分十进制IP
         //表达式：char *inet_ntoa (struct in_addr);
         printf("IP is %s\n", inet_ntoa(clientAddr.sin_addr));
@@ -124,6 +124,7 @@ int main(){
 
         char sendata[] = ",yes!";
         strcat(buffer,sendata);
+        printf(buffer);
         printf("%drecv data is %s\n", iDataNum, buffer);
         send(client, buffer, iDataNum, 0);
 
