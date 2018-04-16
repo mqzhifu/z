@@ -29,6 +29,9 @@ int main(){
     char buffer[200];
     int iDataNum;
 
+    //计数器，无用
+    int cnt = 0;
+
     //创建socket函数FD，失败返回-1
     //int socket(int domain, int type, int protocol);
     //参数1：使用的地址类型，一般都是ipv4，AF_INET
@@ -109,6 +112,12 @@ int main(){
             buffer[iDataNum] = '\0';
             if(strcmp(buffer, "quit") == 0)
                 break;
+
+            cnt++;
+            if(cnt > 10)
+                break;
+
+                
             printf("%drecv data is %s\n", iDataNum, buffer);
             send(client, buffer, iDataNum, 0);
         }
