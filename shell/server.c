@@ -1,6 +1,5 @@
 /*socket tcp服务器端*/
 
-
 //引入相关函数文件
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -18,7 +17,68 @@
 
 #define SERVER_PORT 5555
 
-int main(){
+
+/*
+    创建socket函数FD，失败返回-1
+    int socket(int domain, int type, int protocol);
+    参数1：使用的地址类型，一般都是ipv4，AF_INET
+    参数1：套接字类型，tcp：面向连接的稳定数据传输SOCK_STREAM
+    参数3：设置为0
+*/
+int open_listener_socket() {
+    int s = socket(PF_INET, SOCK_STREAM, 0);
+    if (s == -1) {
+        error("Can't open socket");
+    }
+    return s;
+}
+
+//错误处理函数
+void error(char *msg) {
+    fprintf(stderr, "Error: %s  %s", msg, strerror(errno));
+    exit(1);
+}
+// 绑定端口
+void bind_to_port(int socket, int port) {
+
+    //对于bind，accept之类的函数，里面套接字参数都是需要强制转换成(struct sockaddr *)
+    //bind三个参数：服务器端的套接字的文件描述符，
+
+
+
+    struct sockaddr_in name;
+    //初始化服务器端的套接字，并用htons和htonl将端口和地址转成网络字节序
+    name.sin_family = PF_INET;
+//    name.sin_family = AF_INET;
+    name.sin_port = (in_port_t)htons(port);
+//    name.sin_port = htons(SERVER_PORT);
+
+    //ip本地ip或用宏INADDR_ANY，代表0.0.0.0，所有地址
+    name.sin_addr.s_addr = htonl(INADDR_ANY);
+
+     //正常一个程序绑定一个端口取消后，30秒内不允许再次绑定，防止ctrl+c无效
+    int reuse = 1;
+    if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(int)) == -1) {
+        error("Can't set the reuse option on the socket");
+    }
+    int c = bind(socket, (struct sockaddr*)&name, sizeof(name));
+    if (c == -1) {
+        error("Can't bind to socket");
+    }
+}
+
+// 向客户端发消息
+int send_data(int socket, char *s) {
+    int result = (int)send(socket, s, strlen(s), 0);
+    if (result == -1) {
+        fprintf(stderr, "%s: %s \n","和客户端通信发生错误",strerror(errno));
+    }
+    return result;
+}
+
+
+
+void main(){
     //调用socket函数返回的文件描述符
 	int serverSocket;
     //声明两个套接字sockaddr_in结构体变量，分别表示客户端和服务器
@@ -28,47 +88,16 @@ int main(){
     int client;
     char buffer[200];
     int iDataNum;
-
     //计数器，无用
     int cnt = 0;
 
-    //创建socket函数FD，失败返回-1
-    //int socket(int domain, int type, int protocol);
-    //参数1：使用的地址类型，一般都是ipv4，AF_INET
-    //参数1：套接字类型，tcp：面向连接的稳定数据传输SOCK_STREAM
-    //参数3：设置为0
-	if((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	{
-		perror("create socket failed...");
-		return 1;
-	}
 
+    //创建socket
+    serverSocket = open_listener_socket();
 
 	printf("create socket ok.\n");
-
-    //将两个结构体的值初始化归0
-	bzero(&server_addr, sizeof(server_addr));
-
-    //初始化服务器端的套接字，并用htons和htonl将端口和地址转成网络字节序
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(SERVER_PORT);
-
-	//ip可是本服务器的ip，也可以用宏INADDR_ANY代替，代表0.0.0.0，表明所有地址
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    //正常一个程序绑定一个端口取消后，30秒内不允许再次绑定，防止ctrl+c无效
-    int reuse = 1;
-    if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(int)) == -1) {
-          error("Can't set the reuse option on the socket");
-    }
-
-    //对于bind，accept之类的函数，里面套接字参数都是需要强制转换成(struct sockaddr *)
-    //bind三个参数：服务器端的套接字的文件描述符，
-    if(bind(serverSocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-    {
-        perror("bind connect failed..");
-        return 1;
-    }
+    //绑定IP端口
+    bind_to_port(serverSocket,SERVER_PORT);
 
     printf("bind socket ok.\n");
 
@@ -76,17 +105,14 @@ int main(){
     //设置服务器上的socket为监听状态
     if(listen(serverSocket, 5) < 0)
     {
-        perror("listen");
-        return 1;
+        error("listen",-3);
     }
 
 
     printf("Listening on port: %d\n", SERVER_PORT);
 
     while(1){
-        //调用accept函数后，会进入阻塞状态
-        //accept返回一个套接字的文件描述符，这样服务器端便有两个套接字的文件描述符，
-        //serverSocket和client。
+        //调用accept，会进入阻塞状态,accept返回一个套接字FD，便有两个FD:serverSocket和client
         //serverSocket仍然继续在监听状态，client则负责接收和发送数据
 
         //clientAddr是一个传出参数，accept返回时，传出客户端的地址和端口号
@@ -108,44 +134,37 @@ int main(){
         //表达式：char *inet_ntoa (struct in_addr);
         printf("IP is %s\n", inet_ntoa(clientAddr.sin_addr));
         printf("Port is %d\n", htons(clientAddr.sin_port));
-//        while(1){
+
+        char final_recv_data[255];
+        while(1){
             iDataNum = recv(client, buffer, 1024, 0);
             if(iDataNum < 0)
             {
-                perror("recv");
-                continue;
+                error("recv error");
             }
 
-//            printf("%s",buffer);
-//            buffer[iDataNum] = '\0';
-//            if(strcmp(buffer, "\0") == 0)
-//                break;
-
-//            cnt++;
-//            if(cnt > 10){
-//                printf(" err,cnt>10 exec!");
-//                break;
-//            }
+            if(iDataNum == 0){
+                break;
+            }
 
 
+            strcat(final_recv_data,buffer);
+            cnt++;
+            if(cnt > 10){
+                printf(" err,cnt>10 exec!");
+                break;
+            }
+        }
 
 
-//        }
-
-
-        iDataNum = strlen(buffer);
-
-        printf("recv_str_num:%d,recv data is: %s,send_data:%s\n", iDataNum, buffer,"yes!");
+        printf("recv_str_num:%d,recv data is: %s,send_data:%s\n", strlen(final_recv_data), final_recv_data,"yes!");
         char send_data[] = "yes,im z!";
-        send(client, send_data, iDataNum, 0);
 
-        sleep(10);
+        send_data(client,send_data);
+//        sleep(10);
 
     }
 
-
-
-    return 0;
-
-
 }
+
+
