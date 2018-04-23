@@ -12,44 +12,66 @@ class Spider{
 
         set_time_limit(0);
 
-        $domain = "http://www.uthing.cn/";
-        $this->catch_url($domain);
+        $domain = "http://bj.uban.com/";
+
+        for($i=1;$i<=20;$i++){
+            $url = " http://bj.uban.com/searchlist/$i/#list-result";
+            $this->catch_url($domain);
+        }
+
+
+
+
     }
 
     function catch_url($url){
-        if(!FilterLib::regex($url,'url')){
-            echo "url error:".$url."\n";
-            return 0;
-        }
-
-        if(substr($url,0,7) == 'http://'){
-            $auth_url = explode("/",$url);
-            $auth_url = explode(".",$auth_url[2]);
-            if($auth_url[1] != 'uthing' ){
-                $this->rs_url[] = $url;
-                echo "not local domain:".$url ."\n";
-                return 0;
-            }
-        }
-
-        $this->rs_url[] = $url;
         $url_content = get_url_content($url);
-        if(!$url_content)
-            return 0;
 
-        $a_collection = $this->get_a_href($url_content,$url);
-        if(!$a_collection){
-            echo ++$this->cnt." ".$url. "\n";
-        }else {
-            foreach ($a_collection as $k => $v) {
-                $this->catch_url($v);
-            }
-        }
+
+        $search = "/<div class=\"office-list-item clearfix\">.*?<\/div>/si";
+        preg_match_all($search,$url_content,$xx);
+
+        var_dump($xx);exit;
+
     }
 
+
+//<div class="office-list-item clearfix">
+//<a href="/detail-98.html" class="db pr" target="_blank">
+//<div class="jfl pr">
+//<img data-original="http://img1.static.uban.com/bc3275e2-9d84-11e5-9444-00163e00571b.JPG-wh480x320" src="http://img1.static.uban.com/bc3275e2-9d84-11e5-9444-00163e00571b.JPG-wh480x320" width="270" height="180" alt="半岛科技园" style="display: inline;">
+//</div>
+//<div class="price-box text-right">
+//<span class="db text-gray6"><em class="font26 font-num fb text-pink-app">4</em> 元/<span class="font-num">m²</span>·天</span>
+//<span class="db text-gray9 font12 mt10">均价</span>
+//</div>
+//<dl class="office-building-cont pr clearfix">
+//<dt class="mb25 clearfix">
+//<b class="font20 text-black fl">半岛科技园</b>
+//</dt>
+//<dd>
+//<i class="sem-icon item-address"></i>[浦东-张江] 上海浦东新区达尔文路88号(近高科中路)</dd>
+//
+//<dd>
+//<i class="sem-icon item-area"></i>可租面积  <span class="text-black fb">64-1688</span><span class="font-num"> m²</span>, 待租办公室&nbsp;<span class="font-num text-black fb">84</span>&nbsp;套</dd>
+//<dd>
+//<span><i class="sem-icon item-see"></i>近7天有 <b class="hover">15</b> 位用户咨询过</span>
+//</dd>
+//<dd class="last-fix-bottom">
+//<div class="jfl building-tag">
+//<span>距张江高科站982米</span>
+//<span>创意园区</span>
+//</div>
+//</dd>
+//</dl>
+//</a>
+//<p class="isfavorite cur-pointer" data-favorite="0" data-id="98" }="">关注</p>
+//									<p class="contrast cur-pointer" data-office="98">加入对比</p>
+//							</div>
+
+
     function get_a_href($html,$url){
-        $search = "/<script[^>]*?>.*?<\/script>/si";
-        $html = preg_replace($search,' ',$html);
+
 
 
 

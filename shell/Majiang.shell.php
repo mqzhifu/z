@@ -4,6 +4,7 @@ class Majiang{
 
 	private $redis ;
 
+    private $user_fd = array();
 	const STATUS_ONLINE = 1 ;
 	const STATUS_OFFLINE = 2 ;
 	const STATUS_PLAYING = 3 ;
@@ -15,43 +16,60 @@ class Majiang{
     }
 
     public function run($attr){
-		$ip = "127.0.0.1";
         $ip = "0.0.0.0";
 		$port = 9502;
 
-        $i = 1;
+//        $this->redis = new RedisPHPLib();
 
 		//创建websocket服务器对象，监听0.0.0.0:9502端口
 		$ws = new swoole_websocket_server($ip, $port);
-//        $ws->set(array(
-//            'worker_num'=>4
-//        ));
+
+
+        $ws->set(array(
+//            'worker_num' => 2,
+//            'reactor_num'=>8,
+//            'task_worker_num'=>1,
+//            'dispatch_mode' => 2,
+//            'debug_mode'=> 1,
+//            'daemonize' => true,
+//            'log_file' => __DIR__.'/log/webs_swoole.log',
+            'heartbeat_check_interval' => 60,
+//            'heartbeat_idle_time' => 600,
+        ));
 
 
         $ws->on('open', function (swoole_websocket_server $ws, $request) {
-            echo "server: handshake success with fd{$request->fd}\n";
+            echo "server: conn success with fd{$request->fd}\n";
+
         });
 
         $ws->on('message', function (swoole_websocket_server $ws, $frame) {
-            echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-            $uid = $frame->data;
-            global $i;
-            $i++;
-            $this->cnt($i);
-            $ws->push($frame->fd, "this is server");
+            echo "receive from {$frame->fd}:data[{$frame->data}],opcode:{$frame->opcode},fin:{$frame->finish}\n";
+            $receive_data = json_decode( $frame->data);
+
+            if( !isset($receive_data['uid']) || !$receive_data['uid']){
+                $msg = 'err:uid is null...';
+            }else{
+
+                if( !isset($receive_data['fd']) || !$receive_data['fd'] ){
+                    $msg = 'save user  new fd!';
+                    $this->user_fd[$receive_data['uid']] = $frame->fd;
+                }else{
+                    //可能是 用户断开了连接，重新连接，也可能是被攻击
+                    if( $this->user_fd[$receive_data['uid']] != $frame->fd){
+                        $msg = "maybe user offline,so up new fd!";
+                        $this->user_fd[$receive_data['uid']] = $frame->fd;
+                    }
+                }
+            }
+
+            $ws->push($frame->fd, "server copy that,$msg,waiting...,please~");
         });
 
 
 
 
 
-//		//监听WebSocket连接打开事件.
-//		$ws->on('open', function ($ws, $request) {
-//			echo "server: handshake success with fd{$request->fd}\n";
-//
-//
-//		});
-//
 //		//监听WebSocket消息事件
 //		$ws->on('message', function ($ws, $frame) {
 //			echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
@@ -73,10 +91,10 @@ class Majiang{
 //
 //		});
 //
-//		//监听WebSocket连接关闭事件
-//		$ws->on('close', function ($ws, $fd) {
-//			echo "client-{$fd} is closed\n";
-//		});
+		//监听WebSocket连接关闭事件
+		$ws->on('close', function ($ws, $fd) {
+			echo "client-{$fd} is closed\n";
+		});
 //
 		$ws->start();
 

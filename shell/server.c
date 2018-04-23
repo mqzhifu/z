@@ -17,6 +17,12 @@
 
 #define SERVER_PORT 5555
 
+//错误处理函数
+void error(char *msg) {
+    fprintf(stderr, "Error: %s  %s", msg, strerror(errno));
+    exit(1);
+}
+
 
 /*
     创建socket函数FD，失败返回-1
@@ -33,11 +39,7 @@ int open_listener_socket() {
     return s;
 }
 
-//错误处理函数
-void error(char *msg) {
-    fprintf(stderr, "Error: %s  %s", msg, strerror(errno));
-    exit(1);
-}
+
 // 绑定端口
 void bind_to_port(int socket, int port) {
 
@@ -103,6 +105,7 @@ void main(){
 
 
     //设置服务器上的socket为监听状态
+    //第2个参数：backlog，半连接+已连接，之和
     if(listen(serverSocket, 5) < 0)
     {
         error("listen",-3);
@@ -129,40 +132,48 @@ void main(){
         printf("accept client:%d.\n",client);
 
 
-        printf("\nrecv client data...\n");
         //inet_ntoa   ip地址转换函数，将网络字节序IP转换为点分十进制IP
         //表达式：char *inet_ntoa (struct in_addr);
         printf("IP is %s\n", inet_ntoa(clientAddr.sin_addr));
         printf("Port is %d\n", htons(clientAddr.sin_port));
 
-        char final_recv_data[255];
-        while(1){
-            iDataNum = recv(client, buffer, 1024, 0);
-            if(iDataNum < 0)
-            {
-                error("recv error");
+
+        //定义进程ID变量，启用多进程模式，防止阻塞
+        pid_t pid;
+        if(pid < 0){
+            perror("fork error");
+        }else if(pid == 0){
+            char final_recv_data[255];
+            while(1){
+                iDataNum = recv(client, buffer, 1024, 0);
+                if(iDataNum < 0)
+                {
+                    error("recv error");
+                }
+
+                if(iDataNum == 0){
+                    break;
+                }
+
+
+                strcat(final_recv_data,buffer);
+
+                //这里防止死循环，也是防止C端恶意攻击
+                cnt++;
+                if(cnt > 10){
+                    printf(" err,cnt>10 exec!");
+                    break;
+                }
             }
 
-            if(iDataNum == 0){
-                break;
-            }
 
+            printf("recv_str_num:%d,recv data is: %s,send_data:%s\n", strlen(final_recv_data), final_recv_data,"yes!");
+            char send_data[] = "yes,im z!";
 
-            strcat(final_recv_data,buffer);
-            cnt++;
-            if(cnt > 10){
-                printf(" err,cnt>10 exec!");
-                break;
-            }
+            send_data(client,send_data);
+        }else{
+            //父进程，不做任何操作，返回
         }
-
-
-        printf("recv_str_num:%d,recv data is: %s,send_data:%s\n", strlen(final_recv_data), final_recv_data,"yes!");
-        char send_data[] = "yes,im z!";
-
-        send_data(client,send_data);
-//        sleep(10);
-
     }
 
 }
