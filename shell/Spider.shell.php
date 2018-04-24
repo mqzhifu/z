@@ -2,6 +2,9 @@
 class Spider{
     public $cnt = 0;
     public $rs_url = array();
+
+    public $data = array();
+
     function __construct($c){
         $this->commands = $c;
     }
@@ -14,24 +17,63 @@ class Spider{
 
         $domain = "http://bj.uban.com/";
 
-        for($i=1;$i<=20;$i++){
-            $url = " http://bj.uban.com/searchlist/$i/#list-result";
-            $this->catch_url($domain);
+        for($i=1;$i<=129;$i++){
+            $url = "http://bj.uban.com/searchlist/y$i/#list-result";
+            $this->catch_url($url,$i);
         }
 
+	$fd = fopen("data.txt","a");
+	foreach($this->data as $page){
+		foreach($page as $row){
+			echo $row['com']. " ". $row['addr']. " ". $row['area']. " ". $row['num']. " ". $row['view']."\n";	
+			$row_data = $row['com']. "\t". $row['addr']. "\t". $row['area']. "\t". $row['num']. "\t". $row['view']."\r\n";
+			fwrite($fd,$row_data);
+		}
+	}
 
 
 
     }
 
-    function catch_url($url){
+    function catch_url($url,$page){
         $url_content = get_url_content($url);
 
+        $search = "/office-list-item clearfix\">.*?<\/dl>/si";
+        preg_match_all($search,$url_content,$li,PREG_SET_ORDER);
 
-        $search = "/<div class=\"office-list-item clearfix\">.*?<\/div>/si";
-        preg_match_all($search,$url_content,$xx);
 
-        var_dump($xx);exit;
+	foreach($li as $row){
+		//var_dump($row[0]);exit;
+		preg_match_all("/<b class=\"font20 text-black fl\">(.*?)<\/b>/si",$row[0],$company,PREG_SET_ORDER);
+		preg_match_all("/item-address\"><\/i>(.*?)<\/dd/si",$row[0],$addr,PREG_SET_ORDER);
+		preg_match_all("/text-black fb\">(.*?)<\/span>/si",$row[0],$area,PREG_SET_ORDER);
+		preg_match_all("/<b class=\"hover\">(.*?)<\/b>/si",$row[0],$view,PREG_SET_ORDER);
+
+		$one = array('com'=>$company[0][1],'addr'=>$addr[0][1],'area'=>'已租满','num'=>'','view'=>'');
+		if($area){
+			$one['area'] = $area[0][1];
+			$one['num'] = $area[1][1];		
+		}
+
+		if($view){
+			$one['view'] = $view[0][1];
+		}
+		//$one = array($company[0][1],$addr[0][1],$area[0][1],$area[1][1],$view[0][1]);
+
+		$this->data[$page][] = $one;
+
+		//var_dump($company);var_dump($addr);var_dump($area);var_dump($view);exit;
+
+                /* 
+		<i class="sem-icon item-address"></i>[朝阳-慈云寺/四惠] 高井文化传媒园8号</dd>
+		<span class="text-black fb">74-10000</span>
+		 <b class="hover">21</b>
+		*/
+	}
+
+
+//var_dump($this->data[$page]);exit;
+
 
     }
 
