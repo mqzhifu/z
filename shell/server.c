@@ -144,26 +144,26 @@ void main(){
             error("fork error",-9);
         }else if(pid == 0){
             char final_recv_data[255];
-            while(1){
+//            while(1){
                 iDataNum = recv(client, buffer, 1024, 0);
                 if(iDataNum < 0)
                 {
                     error("recv error",-6);
                 }
 
-                if(iDataNum == 0){
-                    break;
-                }
+//                if(iDataNum == 0){
+//                    break;
+//                }
 
 
                 strcat(final_recv_data,buffer);
 
                 //这里防止死循环，也是防止C端恶意攻击
-                cnt++;
-                if(cnt > 10){
-                    printf(" err,cnt>10 exec!");
-                    break;
-                }
+//                cnt++;
+//                if(cnt > 10){
+//                    printf(" err,cnt>10 exec!");
+//                    break;
+//                }
             }
 
 
