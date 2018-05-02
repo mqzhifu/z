@@ -18,7 +18,7 @@
 #define SERVER_PORT 5555
 
 //错误处理函数
-void error(char *msg) {
+void error(char *msg , int code) {
     fprintf(stderr, "Error: %s  %s", msg, strerror(errno));
     exit(1);
 }
@@ -34,7 +34,7 @@ void error(char *msg) {
 int open_listener_socket() {
     int s = socket(PF_INET, SOCK_STREAM, 0);
     if (s == -1) {
-        error("Can't open socket");
+        error("Can't open socket",-4);
     }
     return s;
 }
@@ -61,11 +61,11 @@ void bind_to_port(int socket, int port) {
      //正常一个程序绑定一个端口取消后，30秒内不允许再次绑定，防止ctrl+c无效
     int reuse = 1;
     if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(int)) == -1) {
-        error("Can't set the reuse option on the socket");
+        error("Can't set the reuse option on the socket",-2);
     }
     int c = bind(socket, (struct sockaddr*)&name, sizeof(name));
     if (c == -1) {
-        error("Can't bind to socket");
+        error("Can't bind to socket",-1);
     }
 }
 
@@ -125,7 +125,7 @@ void main(){
 
         client = accept(serverSocket, (struct sockaddr*)&clientAddr, (socklen_t*)&addr_len);
         if(client < 0){
-            perror("accept");
+            perror("accept",-5);
             continue;
         }
 
@@ -148,7 +148,7 @@ void main(){
                 iDataNum = recv(client, buffer, 1024, 0);
                 if(iDataNum < 0)
                 {
-                    error("recv error");
+                    error("recv error",-6);
                 }
 
                 if(iDataNum == 0){
@@ -168,9 +168,9 @@ void main(){
 
 
             printf("recv_str_num:%d,recv data is: %s,send_data:%s\n", strlen(final_recv_data), final_recv_data,"yes!");
-            char send_data[] = "yes,im z!";
+            char send_data_arr[] = "yes,im z!";
 
-            send_data(client,send_data);
+            send_data(client,send_data_arr);
         }else{
             //父进程，不做任何操作，返回
         }

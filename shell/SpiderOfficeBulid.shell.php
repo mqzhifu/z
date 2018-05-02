@@ -1,5 +1,5 @@
 <?php
-class Spider{
+class SpiderOfficeBulid{
     public $cnt = 0;
     public $rs_url = array();
 
@@ -10,27 +10,62 @@ class Spider{
     }
 
     public function run($attr){
-//        if(!isset($attr['db_name']))
-//            exit('db_name=xxx');
-
         set_time_limit(0);
 
-        $domain = "http://bj.uban.com/";
+        $cnt = 1;
+        for($i=1;$i<=105;$i++){
+            if($cnt % 10 == 0){
+                echo "sleep:".$cnt."\r\n";
+                sleep(1);
+            }
+            $cnt++;
 
-        for($i=1;$i<=129;$i++){
             $url = "http://bj.uban.com/searchlist/y$i/#list-result";
+            $url = "http://sh.uban.com/searchlist/y$i/#list-result";
             $this->catch_url($url,$i);
+
         }
 
-	$fd = fopen("data.txt","a");
-	foreach($this->data as $page){
+
+        require_once PLUGIN.'/phpexcel/PHPExcel.php';
+        $obj = new PHPExcel();
+
+
+        $cellName = array('A','B','C','D','E');
+//	$fd = fopen("data.txt","a");
+
+        $j = 1;
+	foreach($this->data as $k=> $page){
 		foreach($page as $row){
-			echo $row['com']. " ". $row['addr']. " ". $row['area']. " ". $row['num']. " ". $row['view']."\n";	
-			$row_data = $row['com']. "\t". $row['addr']. "\t". $row['area']. "\t". $row['num']. "\t". $row['view']."\r\n";
-			fwrite($fd,$row_data);
+            echo $row['com']. " ". $row['addr']. " ". $row['area']. " ". $row['num']. " ". $row['view']."\n";
+//            foreach($cellName as $x=>$col){
+//                $j = $k + 1;
+                $obj->setActiveSheetIndex(0)->setCellValue("A".$j, $row['com']);
+                $obj->setActiveSheetIndex(0)->setCellValue("B".$j, $row['addr']);
+                $obj->setActiveSheetIndex(0)->setCellValue("C".$j, $row['area']);
+                $obj->setActiveSheetIndex(0)->setCellValue("D".$j, $row['num']);
+                $obj->setActiveSheetIndex(0)->setCellValue("E".$j, $row['view']);
+//            }
+
+            $j++;
+//			$row_data = $row['com']. "\t". $row['addr']. "\t". $row['area']. "\t". $row['num']. "\t". $row['view']."\r\n";
+//			fwrite($fd,$row_data);
 		}
 	}
 
+
+
+
+
+//    foreach($cellName as $k=>$v){
+//
+//    }
+
+    $objWriter = PHPExcel_IOFactory::createWriter($obj, 'Excel5');
+//    $objWriter = PHPExcel_IOFactory::createWriter($obj, 'Excel2007');
+
+    $objWriter->save("shanghai.xls");
+    exit;
 
 
     }
