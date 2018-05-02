@@ -125,7 +125,7 @@ void main(){
 
         client = accept(serverSocket, (struct sockaddr*)&clientAddr, (socklen_t*)&addr_len);
         if(client < 0){
-            perror("accept",-5);
+            error("accept",-5);
             continue;
         }
 
@@ -141,7 +141,7 @@ void main(){
         //定义进程ID变量，启用多进程模式，防止阻塞
         pid_t pid;
         if(pid < 0){
-            perror("fork error");
+            error("fork error",-9);
         }else if(pid == 0){
             char final_recv_data[255];
             while(1){
