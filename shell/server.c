@@ -144,6 +144,7 @@ void main(){
         if(pid < 0){
             error("fork error",-9);
         }else if(pid == 0){
+
             char final_recv_data[255];
 //            while(1){
                 iDataNum = recv(client, buffer, 1024, 0);
