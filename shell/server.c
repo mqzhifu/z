@@ -140,6 +140,7 @@ void main(){
 
         //定义进程ID变量，启用多进程模式，防止阻塞
         pid_t pid;
+        pid = fork()
         if(pid < 0){
             error("fork error",-9);
         }else if(pid == 0){
