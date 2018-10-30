@@ -29,7 +29,7 @@ class SwooleWebSocketLib{
         $server = new swoole_websocket_server($this->_ip, $this->_port ,SWOOLE_PROCESS,SWOOLE_TCP);
 
         eo('new swoole_websocket_server:',$server);
-        $rs = $server->set( $this->_config() );
+        $rs = $server->set( $this->_config );
 
         eo('set config ',$rs);
         try{
