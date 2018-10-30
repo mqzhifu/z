@@ -5,6 +5,7 @@ class server{
     }
 
     public function run($attr){
-        exec('chcp 936');
+        $sw = new SwooleWebSocketLib();
+        $sw->run();
     }
 }

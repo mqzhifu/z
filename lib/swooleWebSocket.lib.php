@@ -117,7 +117,3 @@ function onMessage(){
 }
 
 
-
-$c = new SWServer();
-
-$c->run();
