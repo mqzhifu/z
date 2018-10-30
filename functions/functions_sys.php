@@ -247,6 +247,30 @@ function checkrobot($useragent = '') {
 	return false;
 }
 
+function eo($title,$data = null,$n = 1,$charset = 1){
+    $content = $title;
+    if($data){
+        $content .= json_encode($data);
+    }
+
+    if($n){
+        if(PHP_OS == 'WINNT'){
+            $content .= "\r\n";
+        }else{
+            $content .= "\n";
+        }
+    }
+
+    if($charset){
+        if(PHP_OS == 'WINNT'){
+            //这个是PHP7以后，才得加的
+            exec('chcp 936');
+            $content = iconv("UTF8",'GBK',$charset);
+        }
+    }
+
+    echo date("Y-m-d H:i:s")."|".$content;
+}
 
 function out_pc($code = 200,$msg = ''){
     if(!$msg){

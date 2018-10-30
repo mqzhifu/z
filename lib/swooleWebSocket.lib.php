@@ -20,7 +20,7 @@ class SwooleWebSocketLib{
 
     public function run(){
 
-        out('ip'.$this->_ip.",port:".$this->_port);
+        eo('ip'.$this->_ip.",port:".$this->_port);
 
         //创建websocket服务器对象，监听0.0.0.0:9502端口
         //SWOOLE_PROCESS 多进程模式
@@ -117,3 +117,7 @@ function onMessage(){
 }
 
 
+
+$c = new SWServer();
+
+$c->run();
