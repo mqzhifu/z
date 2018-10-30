@@ -1,7 +1,7 @@
 <?php
 class SwooleWebSocketLib{
     private $_ip = "0.0.0.0";
-    private $_port = "9500";
+    private $_port = "9501";
     private $_config = array(
         'task_worker_num',
         'worker_num'=>4,
