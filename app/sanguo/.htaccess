@@ -8,3 +8,15 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(\w+)/(\w+)/(.*) /index.php?ctrl=$1&ac=$2&$3 [QSA,PT,L]
 
 
+#注意，打开如果下：
+#headers_module
+#rewrite_module
+
+#<FilesMatch "\.(ttf|otf|eot|woff|svg|woff2)$">
+#  <IfModule mod_headers.c>
+#    Header set Access-Control-Allow-Origin "*"
+#  </IfModule>
+#</FilesMatch>
+
+
+#AllowOverride All
