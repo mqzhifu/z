@@ -115,9 +115,3 @@ function onMessage(){
     $server->push($frame->fd, "this is server");
 
 }
-
-
-
-$c = new SWServer();
-
-$c->run();
