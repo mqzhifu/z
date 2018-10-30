@@ -27,6 +27,7 @@ class FilterLib {
 			'char'=>'//',
 			'qq'=>'/^[1-9]\d{4,9}$/',
 			'uid'=>'/\w{12}/',
+            'md5'=>'/^[a-z0-9]{32}$/',
 	);
 	
 	static public function regex($value,$rule) {

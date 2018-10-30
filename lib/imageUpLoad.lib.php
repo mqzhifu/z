@@ -1,133 +1,122 @@
 <?php
-/* 
-$_FILES["file"]["error"]:
-UPLOAD_ERR_OK,0:没有错误发生，文件上传成功
-UPLOAD_ERR_INI_SIZE,1:上传的文件超过了 php.ini中upload_max_filesize(默认情况为2M) 选项限制的值
-UPLOAD_ERR_FORM_SIZE,2:上传文件的大小超过了 HTML表单中MAX_FILE_SIZE选项指定的值
-UPLOAD_ERR_PARTIAL,3:文件只有部分被上传
-UPLOAD_ERR_NO_FILE,4:没有文件被上传
-5: 传文件大小为0
-*/
-
+//图片上传
 class ImageUpLoadLib{
-	public $fileSize = 2;
-	public $fileType = array('pjpeg','gif','gif','bmp','png','jpeg','jpg','x-png');
-	public $path = IMG_UPLOAD;
-	public $upFileTotal;
-	public $upSucc ;
-	public $upFail;
-	public $info = array('upSucc'=>0,'upFail'=>0);
-	public $original ;//不随机生成文件名，而是用原文件名
-	//$postNames:array('post_name1','post_name2','post_name3');
-	function __construct($postNames,$path = null,$fileType = null ,$original = null){
-		if($path){
-			if(!is_dir($path))
-				exit('$path is error');
-				$this->path = $path;
+	//文件大小：2MB
+    public $fileSize = 2;
+    public $fileType = array('pjpeg','gif','gif','bmp','png','jpeg','jpg','x-png');
+    //文件上传路径
+    public $path = IMG_UPLOAD;
+    //是否开始HASH随机文件名
+    public $hash = true;
+    public $postInputName = null;
+
+    function __construct(){
+
+    }
+	//开始上传一个文件
+    //$path:文件上传路径
+    //$fileType：文件类型|文件扩展名
+    //$postNames:input name
+    function upLoadOneFile($postInputName,$path = null,$fileType = null ){
+
+        if($path){
+            if(!is_dir($path))
+                return out_pc(8112);
+            $this->path = $path;
+        }else{
+            if(!is_dir($this->path))
+                return out_pc(8112);
+        }
+
+        if($fileType)
+            $this->fileType = $fileType;
+
+        if(!$postInputName){
+        	return out_pc(8017);
+        }
+
+        if(!isset($_FILES[$postInputName]))
+            return out_pc(8018,'$_FILES['.$postInputName .'] null notice: enctype="multipart/form-data"');
+
+        $mark = file_mode_info($this->path);
+        if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'){
+            if( $mark < 7){
+                return out_pc(8113);
+            }
+        }else{
+            if( $mark != 777){
+                return out_pc(8113);
+            }
+        }
+
+        if(arrKeyIssetAndExist($_FILES[$postInputName],'error')){
+			return out_pc(8118);
+        }
+
+
+//        $this->postInputName = $postInputName;
+        $fileName = $postInputName;
+        if( $_FILES[$fileName]['size']  > $this->fileSize  * 1024 * 1024)
+            return out_pc(8114);
+
+        //判断文件类型(扩展)，共3步，1：文件名、2：PHP自带的函数、3：打开二进制文件
+
+
+		//1判断文件名
+        $fileType = get_file_ext($_FILES[$fileName]["name"]);
+        //转小写
+        $fileType = strtolower($fileType);
+        if(!in_array($fileType, $this->fileType))
+            return out_pc(8115);
+
+        //2PHP自带的函数
+        $fileType = explode('/', $_FILES[$fileName]["type"]);
+        $fileType[1] = strtolower($fileType[1]);
+        if(!in_array($fileType[1], $this->fileType)){
+            return out_pc(8115);
+        }
+
+        if($fileType[1] == 'pjpeg' || $fileType[1] == 'jpeg'){
+            $fileType[1] = 'jpg';
+        }
+        if($fileType[1] == 'x-png' || $fileType[1] == 'png'){
+            $fileType[1] = 'png';
+        }
+
+        //这个验证就比较关键了，防止用户上传恶意文件~
+		//但实际上黑客还是能攻击，但至少能防一些低级的攻击者
+        $type = $this->getFileType($_FILES[$fileName]["tmp_name"]);
+		if(!in_array($type,$this->fileType)){
+            return out_pc(8116);
 		}
-		if($fileType)
-			$this->fileType = $fileType;
-		if(!$postNames || !is_array($postNames)){
-			exit('错误，初始化图片类($postNames)');
-		}
-// 		$mark = file_mode_info($this->path);
-// 		if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN'){
-// 			if( $mark < 7){
-// 				echo "目录无权限";
-// 			}
-// 		}else{
-// 			if( $mark != 777){
-// 				echo "目录无权限";
-// 			}
-// 		}
-		
-		$this->postNames = $postNames;
-	}
-	
-	function getUpName(){
-		$rs =array();
-		if(!$_FILES)
-			return false;
-		
-		foreach($_FILES as $k=>$v){
-			if($v['tmp_name'] && $v['name'] )
-				$rs[] = $v['name'];
-		}
-		
-		return $rs;
-	}
-	
-	static function getUpNames(){
-		$rs =array();
-		if(!$_FILES)
-			return false;
-		
-		foreach($_FILES as $k=>$v){
-			if($v['tmp_name'] && $v['name'] )
-				$rs[] = $k;
-		}
-		
-		return $rs;
-	}
-	
+
+        if($this->hash){
+        	//年月日-小时分秒+4位随机数
+            $createFileName = date("YmdHis")."_" .rand(1000,9999);
+            //获取 HASH 文件夹目录
+            $hashDir = $this->mkdirHash();
+            $fileDirName = $hashDir . "/" . $createFileName ."." . $fileType[1];
+        }else{
+            $fileDirName = $_FILES[$fileName]['name'];
+        }
+
+        $finalFileDirName =  $this->path . "/" .  $fileDirName;
+        //真正-开始-将用户上传的临时文件，转移至目录
+        $rs = move_uploaded_file($_FILES[$fileName]["tmp_name"],$finalFileDirName);
+        if(!$rs){
+            return out_pc(8017);
+        }
+
+        return $fileDirName;
+    }
+	//上传多文件
 	function upLoad(){
 		foreach($this->postNames as $k=>$fileName ){
 			$this->upLoadFile($fileName);
 		}
 		
 	}
-	
-	function upLoadFile($fileName){
-		if(!isset($_FILES[$fileName]))
-			exit('$_FILES['.$fileName .'] null notice: enctype="multipart/form-data"');
-		
-		if( $_FILES[$fileName]['size']  > $this->fileSize  * 1024 * 1024){
-			$this->info['upFail']++;
-			return $this->info[$fileName]['error']  = '图片大于2MB';
-		}
- 		$fileType = get_file_ext($_FILES[$fileName]["name"]);
-		$fileType = strtolower($fileType);
- 		if(!in_array($fileType, $this->fileType)){
- 			$this->info['upFail']++;
-			return $this->info[$fileName]['error']  = '$_FILES[$fileName]["tmp_name"]';
- 		}
-		//验证扩展名，分为2部分
- 		$fileType = explode('/', $_FILES[$fileName]["type"]);
-		$fileType[1] = strtolower($fileType[1]);
- 		if(!in_array($fileType[1], $this->fileType)){
- 			$this->info['upFail']++;
-			return $this->info[$fileName]['error']  = '$_FILES[$fileName]["type"] ';
- 		}
 
- 		if($fileType[1] == 'pjpeg' || $fileType[1] == 'jpeg'){
- 			$fileType[1] = 'jpg';
- 		}
- 		if($fileType[1] == 'x-png' || $fileType[1] == 'png'){
- 			$fileType[1] = 'png';
- 		}
- 		
-		if(!$this->original){
-			$createFileName = date("YmdHis")."_" .uniqid(rand());
-			$hashDir = $this->mkdirHash();
-			$fileHashName = $hashDir . "/" . $createFileName ."." . $fileType[1];
-		}else{
-			$fileHashName = $_FILES[$fileName]['name'];
-		}
-			
-		$fileDirName =  $this->path . "/" .  $fileHashName;
-		$tmp = "/" . $fileDirName;
-		$this->info[$fileName]['uploadFileName'] = $fileHashName;
-		$rs = move_uploaded_file($_FILES[$fileName]["tmp_name"],$fileDirName);
-		if( $rs ){ //把临时文件移动到规定的路径下
-			$this->info[$fileName]['method']  = 1;
-			$this->info['upSucc']++;
-		}else{
-			$this->info[$fileName]['method']  = 1;
-			$this->info['upFail']++;
-			$this->info[$fileName]['error'] = $_FILES[$fileName]['error'];
-		}
-	}
-	
 	function mkdirHash(){
 		$dirName = date("Ymd");
 		$dir = $this->path . "/" . $dirName;
@@ -139,12 +128,15 @@ class ImageUpLoadLib{
 	}
 	
 	function getFileType($filename){
+		//打开文件
 		$file = fopen($filename, "rb");
-		$bin = fread($file, 2); //只读2字节
+        //读前两个字节
+		$bin = fread($file, 2);
 		fclose($file);
+		//二进制转十进制
 		$strInfo = @unpack("C2chars", $bin);
+		//连接两个字符
 		$typeCode = intval($strInfo['chars1'].$strInfo['chars2']);
-		$fileType = '';
 		switch ($typeCode){
 			case 7790:
 				$fileType = 'exe';
@@ -179,13 +171,7 @@ class ImageUpLoadLib{
 		if ($strInfo['chars1']=='-119' AND $strInfo['chars2']=='80' ) return 'png';
 	
 		return $fileType;
-		
-// 		if(in_array($attach['ext'], array('jpg', 'jpeg', 'gif', 'png', 'swf', 'bmp')) && function_exists('getimagesize') && !@getimagesize($target))
-// 		{
-// 			unlink($target);
-// 			upload_error('post_attachment_ext_notallowed', $attacharray);
-// 		}
 	}
 
 }
-?>
+

@@ -1,4 +1,5 @@
 <?php
+//后台管理员-权限控制
 class AclLib{
 	function __construct(){
 		$this->sess = get_instance_of('SessionLib');
@@ -73,8 +74,8 @@ class AclLib{
 //		}
 //		$uinfo['role'] = $role;
 
-		$data = array('is_online'=>1,'up_time'=>time());
-		adminUserModel::db()->upById($uinfo['id'],$data);
+//		$data = array('is_online'=>1,'up_time'=>time());
+//		adminUserModel::db()->upById($uinfo['id'],$data);
 
 		$this->sess->setSession($uinfo);
 		return 1;

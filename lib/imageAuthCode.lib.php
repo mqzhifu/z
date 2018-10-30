@@ -1,5 +1,5 @@
 <?php
-//验证码
+//图片-验证码
 class ImageAuthCodeLib
 {
 	private $width;
@@ -7,14 +7,16 @@ class ImageAuthCodeLib
 	private $codeNum;
 	public $code;
 	private $im;
-	function __construct($width=130, $height=35, $codeNum=4)
+	function __construct()
 	{
-		$this->width = $width;
-		$this->height = $height;
-		$this->codeNum = $codeNum;
+
 	}
-	function showImg()
+	function showImg($width=130, $height=35, $codeNum=4)
 	{
+        $this->width = $width;
+        $this->height = $height;
+        $this->codeNum = $codeNum;
+
 		//创建图片
 		$this->createImg();
 		//设置干扰元素
@@ -82,6 +84,31 @@ class ImageAuthCodeLib
 			die("Don't support image type!");
 		}
 	}
+
+	function saveCodeToRedis($unicode){
+        $key = RedisPHPLib::getAppKeyById($GLOBALS['rediskey']['verifierimgcode']['key'],$unicode);
+        return RedisPHPLib::set($key,$this->getCaptcha(),$GLOBALS['rediskey']['verifierimgcode']['expire']);
+    }
+
+    function authCode($uniqueCode,$imgCode){
+	    if(!$uniqueCode){
+            return out_pc(8011);
+        }
+
+        if(!$imgCode){
+            return out_pc(8008);
+        }
+
+        $key = RedisPHPLib::getAppKeyById($GLOBALS['rediskey']['verifierimgcode']['key'],$uniqueCode);
+        $redisCode = RedisPHPLib::get($key);
+        if($imgCode != strtolower($redisCode)){
+            return out_pc(8107);
+        }
+
+//        RedisPHPLib::getServerConnFD()->del($key);
+
+        return out_pc(200);
+    }
 }
 
 $str = "的一是在了不和有大这主中人上为们地个用工时要动国产以我到他会作来分生对于学下级就年阶义发成部民可出能方进同行面说种过命度革而多子后自社加小机也经力线本电高量长党得实家定深法表着水理化争现所

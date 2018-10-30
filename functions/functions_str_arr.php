@@ -101,6 +101,14 @@ function length ($string){
     return $noc;
 }
 
+//数组中的KEY是否定义，防止出现NOTICE
+function  arrKeyIssetAndExist($arr,$key){
+    if(isset($arr[$key]) && $arr[$key]){
+        return true;
+    }
+    return false;
+}
+
 function _lang($key,$variable_name = '', $variable_content = ''){
     if(isset(  $GLOBALS['LANG'][$key] ) &&  $GLOBALS['LANG'][$key]){
         if($variable_name && $variable_content){

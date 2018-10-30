@@ -47,14 +47,15 @@ class TemplateLib{
       	$str = preg_replace('|{_(.*)}|isU', '<?php echo \\1; ?>', $str);
        	$str = preg_replace('|{\$lang_(.*)}|isU', '<?php echo $language["\\1"]; ?>', $str);
        	$str = preg_replace('|{\$(.*)}|isU', '<?php echo $\\1; ?>', $str);
+        $str = preg_replace('/{CONST\|(.*)}/isU', '<?php echo \\1; ?>', $str);
        	$str = preg_replace('|{else}|isU', '<?php }else{ ?>', $str);
       	$str = preg_replace('|{elseif (.*)}|isU', '<?php }elseif(\\1){ ?>', $str);
        	$str = preg_replace('|{eval (.*)}|isU', '<?php \\1; ?>', $str);
       	$str = preg_replace('|{echo (.*)}|isU', '<?php echo \\1; ?>', $str);
                 
        	$str = preg_replace('|<!--{loop (.*) (.*) (.*)}-->|isU', '<?php if(is_array(\\1)){ foreach(\\1 as \\2 => \\3){  ?>', $str);
-       	$str = preg_replace('|<!--{for (.*)}-->|isU', '<?php for (\\1) {  ?>', $str);
-      	$str = preg_replace('|<!--{/for}-->|isU', '<?php } ?>', $str);
+       	$str = preg_replace('|{for (.*)}|isU', '<?php for (\\1) {  ?>', $str);
+      	$str = preg_replace('|{/for}|isU', '<?php } ?>', $str);
       	$str = preg_replace('|{foreach (.*)}|isU', '<?php foreach \\1 {  ?>', $str);
       	$str = preg_replace('|{/foreach}|isU', '<?php } ?>', $str);
       	$str = preg_replace('|<!--{/loop}-->|isU', '<?php }} ?>', $str);

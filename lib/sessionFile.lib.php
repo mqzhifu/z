@@ -1,4 +1,5 @@
 <?php
+//会话存文件
 class SessionFileLib{
 	function setSession($userInfo,$key){
 		$_SESSION[$key] = $userInfo;

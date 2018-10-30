@@ -1,5 +1,5 @@
 <?php
-
+//会话存DB
 class SessionDbLib{
 	
 	public $db_config = array(

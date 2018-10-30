@@ -1,19 +1,15 @@
 <?php
 
-
 //路径中的返斜杠:/
 define ('DS', "/");
-
+//项目目录
 define ('APP_DIR', BASE_DIR .DS .'app' .DS. APP_NAME);
 
-
-define ('STATIC_URL', "http://127.0.0.1". DS .'assistant/www');
 //常量检查
-Z::checkWebConst();
+Z::checkConst();
 
 if(!is_dir(APP_DIR))
 	exit('APP_DIR not dir:'.APP_DIR);
-
 
 
 //===========控制器==================
@@ -31,11 +27,6 @@ defined('LIB_DIR_NAME') or define('LIB_DIR_NAME','lib');
 defined('LIB_EXT') or define('LIB_EXT','.lib.php');
 defined('LIB_CLASS') or define('LIB_CLASS','Lib');
 //===========类库==================
-//===========memcache==================
-defined('MEM_CACHE') or define('MEM_CACHE','OFF');
-defined('MEM_CACHE_IP') or define('MEM_CACHE_IP','127.0.0.1');
-defined('MEM_CACHE_PORT') or define('MEM_CACHE_PORT',11211);
-//===========memcache==================
 defined('MYSQL_DEBUG') or define('MYSQL_DEBUG',1);
 //加载语言包
 defined('LANG') or define('LANG','CN');
@@ -60,9 +51,22 @@ set_include_path(get_include_path() . PATH_SEPARATOR . BASE_DIR .DS.LIB_DIR_NAME
 set_include_path(get_include_path() . PATH_SEPARATOR . BASE_DIR .DS. 'config');
 set_include_path(get_include_path() . PATH_SEPARATOR . BASE_DIR .DS. 'functions');
 
+defined('PLUGIN') or define(  'PLUGIN',BASE_DIR . '/plugins/');
+set_include_path(get_include_path() . PATH_SEPARATOR . APP_DIR .DS.LIB_DIR_NAME);
+
+//初始化 控制器 模型层 目录
+set_include_path(get_include_path() .PATH_SEPARATOR. APP_DIR .DS .C_DIR_NAME);
+set_include_path(get_include_path() .PATH_SEPARATOR. APP_DIR . DS .M_DIR_NAME);
+//总日志目录
+defined('LOG_PATH') or define('LOG_PATH', BASE_DIR.DS."log");//文件的后缀
+
+define("CONFIG_DIR",BASE_DIR.DS."config/");
 
 
-
+//项目配置目录
+define("APP_CONFIG",CONFIG_DIR.DS.APP_NAME.DS);
+//框架版本
+define('VERSION','1.0');
 
 //初始分有为2个部分，1公共部分，专属部分
 //专属部分：1 WB端，2指令行端，3 API调用
@@ -76,36 +80,26 @@ class Z{
 		include_once 'functions_path_file.php';//公共函数
 		include_once 'functions_str_arr.php';//公共函数
 
-
-
-
-		//框架版本
-		define('VERSION','1.0');
-		
-		$GLOBALS['start_time'] = microtime(TRUE);//项目开始时间
+		$GLOBALS['start_time'] = microtime(TRUE);//框架开始执行时间-开始时间
 		//项目初始化函数
 		if ( function_exists('_start_') )
 			_start_();
 
 
-		if(DEBUG){
+		if(DEBUG){//测试模式-打开出错信息
 			ini_set('display_errors', 1);
 			if(1 == DEBUG){
-				error_reporting(E_ALL ^ E_DEPRECATED);
+				error_reporting(E_ALL);
 			}else{
 				error_reporting(E_ERROR);
 			}
-		}else{
+		}else{//生产模式 关闭 错误提示
 			ini_set('display_errors', 0);
 			error_reporting(0);
 		}
 		
-		include_once 'db.inc.php';//数据库配置
-		self::checkDBConfig();
-
-		include_once "global.inc.php";//公共全局变量
-
 		spl_autoload_register('autoload');//自动加载类
+        register_shutdown_function('shutdown_function');//fatal error
 
 		// 设定错误和异常处理
 		set_error_handler(array('ExceptionFrameLib','appError'));
@@ -118,50 +112,45 @@ class Z{
 		if($memorylimit && return_bytes($memorylimit) < 33554432 ) {
 			ini_set('memory_limit', '128m');
 		}
+
+
+		include_once APP_CONFIG.DS.ENV."/mysql.php";
+        include_once APP_CONFIG.DS.ENV."/redis.php";
+        include_once APP_CONFIG.DS.ENV."/domain.php";
+
 		//===========内存信息==================
-
-		defined('PLUGIN') or define(  'PLUGIN',BASE_DIR . '/plugins/');
-		set_include_path(get_include_path() . PATH_SEPARATOR . APP_DIR .DS.LIB_DIR_NAME);
-
-		//初始化 控制器 模型层 目录
-		set_include_path(get_include_path() .PATH_SEPARATOR. APP_DIR .DS .C_DIR_NAME);
-		set_include_path(get_include_path() .PATH_SEPARATOR. APP_DIR . DS .M_DIR_NAME);
-
 	}
-	//指令行方式运行
+	//指令行方式运行RUN_ENV
 	static function runConsoleApp(){
-		self::$_ACCESS_TYPE = 'SHELL';
-
-		//是否为指令行模式
-		define('IS_SHELL', '1');
 		defined('STDIN') or define('STDIN', fopen('php://stdin', 'r'));
 		
-		set_include_path(get_include_path() . PATH_SEPARATOR .  BASE_DIR . DS .'/shell');
+		set_include_path(get_include_path() . PATH_SEPARATOR .  APP_DIR . DS .'/shell');
 		$Cmd = new CmdlineLib();
-		$Cmd->addCommands(BASE_DIR ."/shell/" );
+
+		$Cmd->addCommands(APP_DIR ."/shell/" );
 		$Cmd->runCommand();
 	}
 	//web方式进行访问
 	static function runWebApp(){
-		self::$_ACCESS_TYPE = 'WEB';
+        include_once APP_DIR.DS."interface.php";
+        self::checkWebConst();
 
 		if(file_exists(APP_DIR.'/app_functions.php'))
 			include_once APP_DIR.'/app_functions.php';//项目公共函数
-		if(file_exists(APP_DIR.'/config/global.inc.php'))
-			include_once APP_DIR."/config/global.inc.php";//项目私有全局变量
 
-		//访问日志
-		defined('ACCESS_LOG') or define('ACCESS_LOG','FILE');
-		//错误日志
-		defined('ERROR_LOG') or define('ERROR_LOG','FILE');
+
 		//****************session***************************
+
 		//前台用户登陆SEESION_KEY
 		//defined('SESS_USER_KEY') or define('SESS_USER_KEY','userInfo');
 		//后台用户登陆SEESION_KEY
 		//defined('SESS_ADMIN_KEY') or define('SESS_ADMIN_KEY','adminuserInfo');
-		
+
+        //是否开始SESSION,默认开户
 		defined('IS_SESS') or define('IS_SESS','1');
+		//session存储类型
 		defined('SESS_TYPE') or define('SESS_TYPE','FILE');
+		//session 失效时间
 		defined('SESS_EXPIRE') or define('SESS_EXPIRE',60 * 60 * 3);
 		if(SESS_TYPE == 'DB'){
 			if(ini_get('session.save_handler') != 'user')
@@ -175,9 +164,8 @@ class Z{
 		defined('PARA_AC') or define('PARA_AC', 'ac');
 		//开启URL地址重写-此功能还没有编写
 		defined('URL_REWRITE_ON') or define('URL_REWRITE_ON', 0);
-
 		//图片上传路径
-		defined('IMG_UPLOAD') or define('IMG_UPLOAD', BASE_DIR . '/www/upload');
+		defined('IMG_UPLOAD') or define('IMG_UPLOAD', BASE_DIR . '/www/upload/'.APP_NAME);
 
 		// 获取请求地址：/project2/point/index.php
 		$script_path = _get_script_url();
@@ -188,38 +176,56 @@ class Z{
 		//请求文件+控制器参数值
 		define('SCRIPT_CTRL',$script_path . "?" .$ctrl );
 		//初始化SESSION
-		$Session = get_instance_of('SessionLib');
-		$Dispath = get_instance_of('DispathLib');
-
-		self::initLanguageConst();
-
-
+		$Session = new SessionLib();
+		//初始化路由
+		$Dispath = new DispathLib();
+        LogLib::accessWrite();
 		$Dispath->authDispath();//路由验证
-		$Dispath->action();
+        try{
+            $Dispath->action();
+        }catch (Exception $e){
+            var_dump($e);exit;
+        }
+
 		//getSqlLog();//所有SQL记录日志
 		//析构函数
 		if ( function_exists('_tp_end') )
 			_tp_end();
 	}
-	static function checkWebConst(){//初始化的常量值，必埴项检查
-		if(!defined('BASE_DIR'))exit_utf8('常量未定义：BASE_DIR');
-		if(!defined('DEF_DB_CONN'))exit_utf8('常量未定:DEF_DB_CONN');
-		if(!defined('DOMAIN'))exit_utf8('常量未定义：DOMAIN');
-		if(!defined('APP_NAME'))exit_utf8('常量未定义：APP_NAME');
+	static function checkConst(){//初始化的常量值，必埴项检查
+        if(!defined('ENV'))exit('常量未定义：ENV');
+		if(!defined('BASE_DIR'))exit('常量未定义：BASE_DIR');
+        if(!defined('RUN_ENV'))exit('常量未定义：RUN_ENV');
+        if(!defined('APP_NAME'))exit('常量未定义：APP_NAME');
+        if(!defined('DEF_DB_CONN'))exit('常量未定义：DEF_DB_CONN');
+        if(!defined('DEF_REDIS_CONN'))exit('常量未定义：DEF_REDIS_CONN');
 	}
 
-	static function checkDBConfig(){
-		if(!isset($GLOBALS['db_config'][DEF_DB_CONN]))
-			exit("db key DEF_DB_CONN:".DEF_DB_CONN."不存在");
-	}
-	//语言包常量
-	static function initLanguageConst(){
-		$data = ConstModel::db()->getAll();
-		if($data){
-			foreach($data as $k=>$v){
-				$GLOBALS['LANG'][$v['key']] = $v['content'];
-			}
-		}
-	}
+    static function checkWebConst(){
+        if(!defined('DOMAIN_URL'))exit('常量未定义：DOMAIN_URL');
+        if(!defined('STATIC_URL'))exit('常量未定义：STATIC_URL');
+    }
 }
+//self::initLanguageConst();
+//语言包常量
+//static function initLanguageConst(){
+//    $data = ConstModel::db()->getAll();
+//    if($data){
+//        foreach($data as $k=>$v){
+//            $GLOBALS['LANG'][$v['key']] = $v['content'];
+//        }
+//    }
+//}
 
+
+
+//ini_set("display_errors",1);
+
+
+//include_once "global.inc.php";//公共全局变量
+//include_once 'db.inc.php';//数据库配置
+//self::checkDBConfig();
+//static function checkDBConfig(){
+//    if(!isset($GLOBALS['db_config'][DEF_DB_CONN]))
+//        exit("db key DEF_DB_CONN:".DEF_DB_CONN."不存在");
+//}

@@ -1,4 +1,5 @@
 <?php
+//分页
 class PageLib{
 	public $mNextPage ;//下一页
 	public $mPrevPage ;//上一页

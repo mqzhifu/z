@@ -127,3 +127,17 @@ function TimeFormat($time=0){
     return $str;
 }
 
+//获取当天的  开始时间  结束时间 的 unixtime
+function dayStartEndUnixtime($day = null){
+    if(!$day){
+        $day = date("Y-m-d");
+    }
+
+    $day = date("Y-m-d",strtotime($day));
+
+    $s_time = strtotime($day." 00:00:00");
+    $e_time = $s_time + 24 * 60 *60 - 1;
+
+    return array('s_time'=>$s_time,'e_time'=>$e_time);
+}
+

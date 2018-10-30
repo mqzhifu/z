@@ -1,4 +1,5 @@
 <?php
+//每个APP应用程序的控制
 class AppLib{
 	function getApp($appid){
 		$where = " where app_id = $appid ";

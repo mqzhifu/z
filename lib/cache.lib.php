@@ -1,4 +1,5 @@
 <?php
+//memcache 缓存
 class CacheLib{
     public $_cache = null;//memcache 实例
     public $_table = "";

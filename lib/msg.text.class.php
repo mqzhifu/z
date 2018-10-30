@@ -1,8 +1,5 @@
 <?
-/**
- * User
- *
- */
+//站内信 - 文本内容
 class Table_msg_text extends Table {
     public $_table = "msg_text" ;
     public $_primarykey = "id";

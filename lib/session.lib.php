@@ -1,4 +1,5 @@
 <?php
+//会话控制
 class SessionLib{
 	public $config = array();
 	public $expire =  SESS_EXPIRE;
@@ -13,7 +14,10 @@ class SessionLib{
 			$this->_work = new SessionDbLib();
 		}
 // 		$this->sessKey = $this->getSessKey();
-		session_start();
+        if(!session_id()){
+            session_start();
+        }
+
 	}
 	
 // 	function getSessKey(){

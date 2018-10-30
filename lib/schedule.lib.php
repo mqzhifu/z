@@ -1,5 +1,5 @@
 <?php
-//调度
+//客服 - 调度
 class ScheduleLib{
 	public $openid = "";
 	public $timeout = 0;

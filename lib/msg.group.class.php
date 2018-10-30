@@ -1,8 +1,5 @@
 <?
-/**
- * User
- *
- */
+//站内信-群发
 class Table_msg_group extends Table {
     public $_table = "msg_group" ;
     public $_primarykey = "id";

@@ -1,4 +1,5 @@
 <?php
+//麻将游戏
 class majiangLib{
     private $_record = array();
     private $_init_record = array();

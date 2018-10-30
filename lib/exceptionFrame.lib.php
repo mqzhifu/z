@@ -1,35 +1,77 @@
 <?php
-//自己的异常处理器
+//异常处理
 class ExceptionFrameLib extends Exception {
 	
 	public function __construct($message,$code=0,$extra=false) {
 		parent::__construct($message,$code);
 	}
-	
+    //捕获 异常 触发
+    static function throwErr($errInfo) {
+        $trace = debug_backtrace();
+
+        if('SHELL' == z::$_ACCESS_TYPE){//指令行
+            var_dump($errInfo . $errInfo);exit;
+        }
+
+//		if(strpos($error,"action_log")!== false){
+//			echo "loop....";var_dump($error);
+//			exit;
+//		}
+//		if(strpos($error,"DB_config") !== false){
+//			echo "loop....";var_dump($error);
+//			exit;
+//		}
+
+
+//        $traceInfo = self::errInfo($trace);
+
+        LogLib::systemWriteFileHash("exception",$errInfo);
+
+        var_dump($errInfo);exit;
+        exit;
+//		$title = "错误提示";
+//		$e = $error ;
+//
+//		$tplt = getAppSmarty();
+//		$tplt->checkErrorFile();
+//
+//		$STATIC_URL = STATIC_URL;
+//
+//
+//		include $tplt->compile('error.html');
+    }
 	static public function appError($errno, $errstr, $errfile, $errline) {
-		//这里主要
-		//:mysql_connect(): The mysql extension is deprecated and will be removed in the future: 
-		//use mysqli or PDO instead
-		if(8192 == $errno)
-			return 0;
-		if(z::$_ACCESS_TYPE == 'SHELL'){
-			$s = "\n";
-			$e = "error info:".$errstr .$s;
-			$e .= "file:".$errfile .$s;
-			$e .= "line:".$errline .$s;
-		}else{
-			$green = " class='Green'";
-			$Blue = " class='Blue'";
-			$Red = " class='Red'";
-			
-			
-			$e = "<p $green>error no.:".$errno."</p>";
-			$e .= "<p $green>info:".$errstr."</p>";
-			$e .= "<p $Blue>file:".$errfile ."</p>";
-			$e .= "<p $Red>line:".$errline ."</p>";
-		}
-		$trace = debug_backtrace();
-		self::halt($e,$trace,'SYSTEM');
+        $type = getErrInfo($errno);
+        $str  = "[type]: $type"."[msg]: $errstr "."[file]: $errfile "."[line]: $errline";
+
+	    LogLib::systemWriteFileHash('error',$str);
+
+
+	    var_dump($str);exit;
+//        $type = getErrInfo($errno);
+//        $str  = "[type]: $type"."[msg]: $errstr "."[file]: $errfile "."[line]: $errline";
+//        Mod_Log_system::error($str);
+
+//		if(8192 == $errno)
+//			return 0;
+//		if(z::$_ACCESS_TYPE == 'SHELL'){
+//			$s = "\n";
+//			$e = "error info:".$errstr .$s;
+//			$e .= "file:".$errfile .$s;
+//			$e .= "line:".$errline .$s;
+//		}else{
+//			$green = " class='Green'";
+//			$Blue = " class='Blue'";
+//			$Red = " class='Red'";
+//
+//
+//			$e = "<p $green>error no.:".$errno."</p>";
+//			$e .= "<p $green>info:".$errstr."</p>";
+//			$e .= "<p $Blue>file:".$errfile ."</p>";
+//			$e .= "<p $Red>line:".$errline ."</p>";
+//		}
+//		$trace = debug_backtrace();
+//		self::halt($e,$str,'SYSTEM');
 	}
 
 	static public function errInfo($trace){
@@ -122,33 +164,4 @@ class ExceptionFrameLib extends Exception {
 		return $traceInfo;
 	}
 
-	static function halt($error , $trace,$module = '' ,$back_url = '') {
-		$traceInfo = self::errInfo($trace);
-		if('SHELL' == z::$_ACCESS_TYPE){
-			var_dump($error . $error);exit;
-			
-		}
-		if(strpos($error,"action_log")!== false){
-			echo "loop....";var_dump($error);	
-			exit;
-		}
-		if(strpos($error,"DB_config") !== false){
-			echo "loop....";var_dump($error);
-			exit;
-		}
-
-		LogLib::errorWrite($error,$module);
-
-		$title = "错误提示";
-		$e = $error ;
-		
-		$tplt = getAppSmarty();
-		$tplt->checkErrorFile();
-
-		$STATIC_URL = STATIC_URL;
-
-
-		include $tplt->compile('error.html');
-		exit;
-	}
 }

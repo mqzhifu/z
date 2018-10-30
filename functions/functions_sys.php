@@ -1,4 +1,77 @@
 <?php
+
+function autoload($class){
+
+
+    if( strpos($class,M_CLASS) !== false){
+
+        $l = strpos($class,M_CLASS);
+        $class = substr($class, 0,$l);
+        $class = lcfirst($class);
+        include_once $class .M_EXT;
+    }elseif( strpos($class,C_CLASS) !== false){
+
+        $l = strpos($class,C_CLASS);
+        $class = substr($class, 0,$l);
+        $class = lcfirst($class);
+        include_once $class .C_EXT;
+    }elseif( strpos($class,LIB_CLASS) !== false){
+        $l = strpos($class,LIB_CLASS);
+        $class = substr($class, 0,$l);
+        $class = lcfirst($class);
+        include_once $class .LIB_EXT;
+    }
+}
+
+function shutdown_function()
+{
+
+    $e = error_get_last();
+    if($e){
+        $type = getErrInfo($e['type']);
+        $str = "[type]:".$type.",[msg]:".$e['message'].",[file]:".$e['file'].",[line]".$e['line'];
+        LogLib::systemWriteFileHash("fatal",$str);
+    }
+}
+
+function getErrInfo($errno){
+    $type = $errno;
+    switch ($errno){
+        case E_ERROR:
+            $type = 'E_ERROR';break;
+        case E_WARNING:
+            $type = 'E_WARNING';break;
+        case E_PARSE:
+            $type = 'E_PARSE';break;
+        case E_NOTICE:
+            $type = 'E_NOTICE';break;
+        case E_CORE_ERROR:
+            $type = 'E_CORE_ERROR';break;
+        case E_CORE_WARNING:
+            $type = 'E_CORE_WARNING';break;
+        case E_COMPILE_ERROR:
+            $type = 'E_COMPILE_ERROR';break;
+        case E_COMPILE_WARNING:
+            $type = 'E_COMPILE_WARNING';break;
+        case E_USER_ERROR:
+            $type = 'E_USER_ERROR';break;
+        case E_USER_WARNING:
+            $type = 'E_USER_WARNING';break;
+        case E_USER_NOTICE:
+            $type = 'E_USER_WARNING';break;
+        case E_STRICT:
+            $type = 'E_STRICT';break;
+        case E_RECOVERABLE_ERROR:
+            $type = 'E_RECOVERABLE_ERROR';break;
+        case E_DEPRECATED:
+            $type = 'E_DEPRECATED';break;
+        case E_USER_DEPRECATED:
+            $type = 'E_USER_DEPRECATED';break;
+    }
+
+    return $type;
+}
+
 function jump($url){
     header("Location:".$url);
     exit;
@@ -27,48 +100,52 @@ function isAjax() {
 		return true;
 	return false;
 }
-//防止REDIS重启
-function msg_redis_exist(){
-    return "msg_redis_exist";
-}
-//用户部分群发站内信未读数
-function usr_msg_part_unread($uid){
-    return "usr_msg_part_unread_".$uid;
-}
-//用户群发站内信未读数
-function usr_msg_group_unread($uid){
-    return "usr_msg_group_unread_".$uid;
-}
-//站内信相关的REDIS~KEY
-function sys_group_msg_key(){
-    return "sys_group_msg_";
-}
-//用户群发KEY
-function usr_group_msg_key($uid){
-    return "usr_group_msg_".$uid;
-}
-//用户未读数
-function usr_msg_unread_key($uid){
-    return "usr_msg_unread_".$uid;
-}
-//用户部分群发KEY
-function usr_msg_part_key($uid){
-    return "usr_msg_part_".$uid;
-}
+//function getServiceMax(){
+//    return 15;
+//}
 
-function getAdminUnameByid($id){
-	if(!$id)
-		return "客服1";
-	$uinfo = adminUserModel::db()->getById($id);
-	if(!$uinfo)
-		return "客服2";
+////防止REDIS重启
+//function msg_redis_exist(){
+//    return "msg_redis_exist";
+//}
+////用户部分群发站内信未读数
+//function usr_msg_part_unread($uid){
+//    return "usr_msg_part_unread_".$uid;
+//}
+////用户群发站内信未读数
+//function usr_msg_group_unread($uid){
+//    return "usr_msg_group_unread_".$uid;
+//}
+////站内信相关的REDIS~KEY
+//function sys_group_msg_key(){
+//    return "sys_group_msg_";
+//}
+////用户群发KEY
+//function usr_group_msg_key($uid){
+//    return "usr_group_msg_".$uid;
+//}
+////用户未读数
+//function usr_msg_unread_key($uid){
+//    return "usr_msg_unread_".$uid;
+//}
+////用户部分群发KEY
+//function usr_msg_part_key($uid){
+//    return "usr_msg_part_".$uid;
+//}
 
-	$uname = "客服3";
-	if( isset($uinfo['nickname']) && $uinfo['nickname'])
-		$uname = $uinfo['nickname'];
-
-	return $uname;
-}
+//function getAdminUnameByid($id){
+//	if(!$id)
+//		return "客服1";
+//	$uinfo = adminUserModel::db()->getById($id);
+//	if(!$uinfo)
+//		return "客服2";
+//
+//	$uname = "客服3";
+//	if( isset($uinfo['nickname']) && $uinfo['nickname'])
+//		$uname = $uinfo['nickname'];
+//
+//	return $uname;
+//}
 
 function getAvatarByOid($oid){
 	if(!$oid)
@@ -135,11 +212,10 @@ function admin_db_log_writer($msg,$admin_uid,$cate,$addtime = 0){
 }
 
 
-//抛出异常
-function stop($error,$module = '',$back_url = ''){
-	$trace = debug_backtrace();
-	ExceptionFrameLib::halt($error , $trace,$module  , $back_url);
-}
+//框架抛出异常-抛出异常
+//function stop( $error ){
+//	ExceptionFrameLib::halt($error );
+//}
 // PHP_SELF:当前所执行的脚本的文件名，如:b.com/test/test.php?k=v，则PHP_SELF的值为/test/test.php。
 // SCRIPT_NAME：当前执行的脚本的路径，如:B.com/test/test.php?k=v，则SCRIPT_NAME的值为/test/test.php。
 // SCRIPT_FILENAME：前执行的脚本的绝对路径，如:B.com/test/test.php?k=v，值 为/var/www/test/test.php。注：相对路径，CLI方式来执行，例如../test/test.php，即../test/test.php。
@@ -171,50 +247,44 @@ function checkrobot($useragent = '') {
 	return false;
 }
 
-function getServiceMax(){
-	return 15;
-}
 
-
-function out_ok($msg,$code = 200,$type = 'pc'){
-    return out($code,$msg,0,$type);
+function out_pc($code = 200,$msg = ''){
+    if(!$msg){
+        $msg = $GLOBALS['code'][$code];
+    }
+    return out($code,$msg,'pc');
 }
-function out_err($msg,$code = 500,$type = 'pc'){
-    return out($code,$msg,1,$type);
+function out_ajax($code = 500,$msg = null){
+    header('Content-Type:application/json; charset=utf-8');
+    if(!$msg){
+        $msg = $GLOBALS['code'][$code];
+        var_dump($msg);
+    }
+    return out($code,$msg,'ajax',1);
 }
 //输出
-function out($code = 999,$msg = '',$err ,$type = 'ajax' ,$uid = 0 ,$isLog = 0){
-    if($isLog)
-        Table_Seller_Event::inst()->addevent($msg,$uid,Common::$_adminid);
-
+function out($code = 999,$msg = '',$type = 'ajax',$uid = 0,$isLog = 0){
     if($type == 'pc'){
-        return array('msg'=>$msg,'code'=>$code,'err'=>$err);
+        return array('msg'=>$msg,'code'=>$code);
     }else{
+        if($isLog){
+            if(!$uid){
+                $uid = LOGIN_UID;
+            }
+            $exec_time = $GLOBALS['start_time'] - microtime(TRUE);
+            $data = array(
+                'uid'=>$uid,
+                'return_info'=>$code."##".$msg,
+                'exec_time'=>$exec_time
+            );
+            AccesslogModel::db()->upById(ACCESS_ID,$data);
+        }
+
 		echo json_encode(array('code'=>$code,"msg"=>$msg));
 		exit;
     }
 }
 
-function autoload($class){
-	if( strpos($class,M_CLASS) !== false){
-		
-		$l = strpos($class,M_CLASS);
-		$class = substr($class, 0,$l);
-		$class = lcfirst($class);
-		include_once $class .M_EXT;
-	}elseif( strpos($class,C_CLASS) !== false){
-		
-		$l = strpos($class,C_CLASS);
-		$class = substr($class, 0,$l);
-		$class = lcfirst($class);
-		include_once $class .C_EXT;
-	}elseif( strpos($class,LIB_CLASS) !== false){
-		$l = strpos($class,LIB_CLASS);
-		$class = substr($class, 0,$l);
-		$class = lcfirst($class);
-		include_once $class .LIB_EXT;
-	}
-}
 function getEmailHref($email){
     $a_email = array(
         'sina'=>'mail.sina.com.cn',
@@ -256,7 +326,9 @@ function get_instance_of($name, $method='', $args=array()) {
 // 			}
 // 		}else{
 // 			stop("new class:". $name);
-		}else stop("class not exists:". $name,1,1);
+		}else{
+            ExceptionFrameLib::throwErr("class not exists:". $name);
+        }
 	}
 	return $_instance[$name];
 }

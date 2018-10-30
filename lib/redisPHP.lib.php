@@ -1,62 +1,157 @@
 <?php
 
-/**
- * Class RedisVote redis操作类，集成了redis常用的操作方法
- * @time,2016.03.07
- */
-
 class RedisPHPLib{
     public $redis_obj = null;//redis实例化时静态变量
-	public $host = '127.0.0.1';
-	public $port = '6379';
+//	public $host = '127.0.0.1';
+//	public $port = '6379';
+    public static $conn = null;
+    public static $delimiter = "##";
+    static function getServerConnFD($config_key = null){
+        if(self::$conn){
+            return self::$conn;
+        }
+        if(!$config_key){
+            $config = $GLOBALS['redis'][DEF_REDIS_CONN];
+        }else{
+            $config = $GLOBALS['redis'][$config_key];
+        }
 
+        self::$conn = new Redis();
+        self::$conn->connect($config['host'],$config['port']  );
+        if(isset($config['ps']) && $config['ps']){
+            self::$conn->auth($config['ps']);
+        }
 
-    public function __construct() {
-        $this->redis_obj = new Redis();
-        $this->redis_obj->connect($this->host,$this->port);
-//        $this->redis_obj->auth($auth);
-        return $this->redis_obj;
+        return self::$conn;
     }
 
-    /*------------------------------------start 1.string结构----------------------------------------------------*/
-    /**
-     * 增，设置值  构建一个字符串
-     * @param string $key KEY名称
-     * @param string $value  设置值
-     * @param int $timeOut 时间  0表示无过期时间
-     * @return true【总是返回true】
-     */
-    public function set($key, $value, $timeOut=0) {
-        $setRes =  $this->redis_obj->set($key, $value);
-        if ($timeOut > 0) $this->redis_obj->expire($key, $timeOut);
-        return $setRes;
+//    public function __construct($config_key) {
+//        $config = $GLOBALS['redis'][$config_key];
+//        $this->redis_obj = new Redis();
+//        $this->redis_obj->connect($config['host'],$config['port']  );
+//        if(isset($config['ps']) && $config['ps']){
+//            $this->redis_obj->auth($config['ps']);
+//        }
+//
+//        return $this->redis_obj;
+//    }
+
+
+    static function getAppKeyById($key,$id = null,$appName = null){
+        if(!$appName){
+            $appName = APP_NAME;
+        }
+        $key = $appName."_".$key."_".$id;
+        return $key;
     }
 
-    /**
-     * 查，获取 某键对应的值，不存在返回false
-     * @param $key ,键值
-     * @return bool|string ，查询成功返回信息，失败返回false
-     */
-    public  function get($key){
-        $setRes =  $this->redis_obj->get($key);//不存在返回false
-        if($setRes === 'false'){
+    static function set($key, $value, $timeOut=0,$jsonEncode = false) {
+        if($jsonEncode){
+            $value = json_encode($value);
+        }
+        if ($timeOut > 0){
+            $rs = self::getServerConnFD()->SETEX($key,$timeOut,$value);
+        }else{
+            $rs =  self::getServerConnFD()->set($key, $value);
+        }
+
+        return $rs;
+    }
+
+    static  function get($key,$jsonDecode = false){
+        $rs =  self::getServerConnFD()->get($key);//不存在返回false
+        if($rs === 'false'){
             return false;
         }
-        return $setRes;
+
+        if($jsonDecode){
+            $rs = json_decode($rs,true);
+        }
+
+        return $rs;
     }
-    /*------------------------------------1.end string结构----------------------------------------------------*/
+
+
+    static function setByDelimiter($key, $value, $timeOut=0,$delimiter = false) {
+        if(!$delimiter){
+            $delimiter = self::$delimiter;
+        }
+        if(!is_array($value)){
+            return false;
+        }
+        $value = implode($delimiter,$value);
+        if ($timeOut > 0){
+            $rs = self::getServerConnFD()->SETEX($key,$timeOut,$value);
+        }else{
+            $rs =  self::getServerConnFD()->set($key, $value);
+        }
+
+        return $rs;
+    }
+
+    static  function getByDelimiter($key,$delimiter = false){
+        $rs =  self::getServerConnFD()->get($key);//不存在返回false
+        if($rs === 'false'){
+            return false;
+        }
+
+        if(!$delimiter){
+            $delimiter = self::$delimiter;
+        }
+
+        $rs = explode($delimiter,$rs);
+
+        return $rs;
+    }
+    //hash
+
+    //获取一个字段值
+    static function hget($key,$filed,$jsonDecode = false){
+        $re = self::getServerConnFD()->hget($key,$filed);
+        if(!$re){
+            return false;
+        }
+
+        if($jsonDecode){
+            $re = json_decode($jsonDecode,true);
+        }
+
+
+        return $re;
+    }
+    //设置一个字段值
+    static function hset($key,$filed,$value,$jsonEncode = false){
+        if($jsonEncode){
+            $value = json_encode($value);
+        }
+        $re = self::getServerConnFD()->hset($key,$filed,$value);
+        if(!$re){
+            return false;
+        }
+        return $re;
+    }
+    //获取整个HASH 列表的全部值
+//    static function hgetall($key){
+//        $re = self::getServerConnFD()->hgetall($key);
+//        if(!$re){
+//            return false;
+//        }
+//        return $re;
+//    }
+
+//    static function hsetAll($key,$value){
+//
+//    }
+//
+//    //设置若干个KEY-VALUES
+//    static function hmset($key,$data,$timeOut=0){
+//    }
+
+    //hash end
 
 
 
-
-
-    /*------------------------------------2.start list结构----------------------------------------------------*/
-    /**
-     * 增，构建一个列表(先进后去，类似栈)
-     * @param String $key KEY名称
-     * @param string $value 值
-     * @param $timeOut |num  过期时间
-     */
+    //     * 增，构建一个列表(先进后去，类似栈)
     public function lpush($key,$value,$timeOut=0){
         //          echo "$key - $value \n";
         $re = $this->redis_obj->LPUSH($key,$value);
@@ -86,6 +181,7 @@ class RedisPHPLib{
     public function lranges($key,$head,$tail){
         return $this->redis_obj->lrange($key,$head,$tail);
     }
+
 
     /*------------------------------------2.end list结构----------------------------------------------------*/
 
@@ -205,87 +301,8 @@ class RedisPHPLib{
 
 
     /*------------------------------------5.hash结构----------------------------------------------------*/
-    /**
-     * 增，以json格式插入数据到缓存,hash类型
-     * @param $redis_key |array , $redis_key['key']数据库的表名称;$redis_key['field'],下标key
-     * @param $token,该活动的token，用于区分标识
-     * @param $id,该活动的ID，用于区分标识
-     * @param $data|array ，要插入的数据,
-     * @param $timeOut ，过期时间，默认为0
-     * @return $number 插入成功返回1【,更新操作返回0】
-     */
-    public function hset_json($redis_key,$token,$id,$data,$timeOut = 0){
-        $redis_table_name = $redis_key['key'].':'.$token;           //key的名称
-        $redis_key_name = $redis_key['field'].':'.$id;              //field的名称，表示第几个活动
-        $redis_info = json_encode($data);                           //field的数据value，以json的形式存储
-        $re = $this->redis_obj -> hSet($redis_table_name,$redis_key_name,$redis_info);//存入缓存
-        if ($timeOut > 0) $this->redis_obj->expire($redis_table_name, $timeOut);//设置过期时间
-        return $re;
-    }
 
-    /**
-     * 查，json形式存储的哈希缓存，有值则返回;无值则查询数据库并存入缓存
-     * @param $redis,$redis['key'],$redis['field']分别是hash的表名称和键值
-     * @param $token,$token为公众号
-     * @param $token,$id为活动ID
-     * @return bool|array, 成功返回要查询的信息，失败或不存在返回false
-     */
-    public function hget_json($redis_key,$token,$id){
-        $re =   $this->redis_obj->hexists($redis_key['key'].':'.$token,$redis_key['field'].':'.$id);//返回缓存中该hash类型的field是否存在
-        if($re){
-            $info = $this->redis_obj->hget($redis_key['key'].':'.$token,$redis_key['field'].':'.$id);
-            $info = json_decode($info,true);
-        }else{
-            $info = false;
-        }
-        return $info;
-    }
 
-    /**
-     * 增，普通逻辑的插入hash数据类型的值
-     * @param $key ,键名
-     * @param $data |array 一维数组，要存储的数据
-     * @param $timeOut |num  过期时间
-     * @return $number 返回OK【更新和插入操作都返回ok】
-     */
-    public function hmset($key,$data,$timeOut=0){
-        $re = $this->redis_obj  -> hmset($key,$data);
-        if ($timeOut > 0) $this->redis_obj->expire($key, $timeOut);
-        return $re;
-    }
-
-    /**
-     * 查，普通的获取值
-     * @param $key,表示该hash的下标值
-     * @return array 。成功返回查询的数组信息，不存在信息返回false
-     */
-    public function hval($key){
-        $re =   $this->redis_obj->exists($key);//存在返回1，不存在返回0
-        if(!$re) return false;
-        $vals = $this->redis_obj -> hvals($key);
-        $keys = $this->redis_obj -> hkeys($key);
-        $re = array_combine($keys,$vals);
-        foreach($re as $k=>$v){
-            if(!is_null(json_decode($v))){
-                $re[$k] = json_decode($v,true);//true表示把json返回成数组
-            }
-        }
-        return $re;
-    }
-
-    /**
-     *
-     * @param $key
-     * @param $filed
-     * @return bool|string
-     */
-    public function hget($key,$filed){
-        $re = $this->redis_obj->hget($key,$filed);
-        if(!$re){
-            return false;
-        }
-        return $re;
-    }
 
     /*------------------------------------end hash结构----------------------------------------------------*/
 

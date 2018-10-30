@@ -1,4 +1,5 @@
 <?php
+//数据库基类
 class DbLib{
 	public $mConfigArr = array('host','port','type','user','pwd','db_name');
 	public $mLastAddId;//插入一条记录后，信息
@@ -36,8 +37,8 @@ class DbLib{
     	
     	if($this->table)
     		return $this->table;
-    	
-    	stop('table is null....','DB');
+
+        ExceptionFrameLib::throwErr('table is null....');
     	
     }
     //获取表主键
@@ -48,7 +49,7 @@ class DbLib{
     	if($this->pk)
     		return $this->pk;
     	 
-    	stop('primary is null....','DB');
+    	ExceptionFrameLib::throwErr('primary is null....','DB');
     	 
     }
     //初始化数据库连接,这里是一个小优化，只有真正执行SQL语句时，才去连接数据库
@@ -73,6 +74,8 @@ class DbLib{
     		$config = $GLOBALS['db_config'][DEF_DB_CONN];
     	}
 
+
+
     	$host = $config['host'].($config['port']?":{$config['port']}":'');
     	//是否为长连接
 //        if(!defined('MYSQL_PCONNECT')){
@@ -83,9 +86,9 @@ class DbLib{
 //    		$this->mDb = mysqli_pconnect( $host, $config['user'], $config['pwd']);
 //    	}
         if ( !$this->mDb ) 
-            stop("connect db error:". mysqli_error($this->mDb) . $func ." [connect db error]",'DB');
+            ExceptionFrameLib::throwErr("connect db error:". mysqli_error($this->mDb) . $func ." [connect db error]");
         if(!mysqli_select_db( $this->mDb,$config['db_name']))
-        	stop("connect db error:". mysqli_error($this->mDb) ." [select_db error]",'DB');
+        	ExceptionFrameLib::throwErr("connect db error:". mysqli_error($this->mDb) ." [select_db error]");
 		//设置字符集
         mysqli_query($this->mDb,"SET NAMES '".DB_CHARSET."'");
         return $this->mDb;
@@ -106,12 +109,19 @@ class DbLib{
             if($this->mTransaction){//这个位置是事务处理时，需要抛出异常
            		throw new Exception($err);
             }else{
-            	stop($this->mQueryStr."  ".$err);
+            	ExceptionFrameLib::throwErr($this->mQueryStr."  ".$err);
             }
         } else {
             return $this->getDbAll();
         }
     }
+
+
+    function setNames($char){
+        $this->initConnect();
+        mysqli_query($this->mDb,"SET NAMES '$char'");
+    }
+
 	//仅允许执行：update,delete~,返回addId upId
     public function execute($sql) {
     	$this->authExecute($sql);
@@ -129,7 +139,7 @@ class DbLib{
            if($this->mTransaction){
            		throw new Exception($err);
             }else{
-            	stop($err . $sql);
+               ExceptionFrameLib::throwErr($err . $sql);
             }
         } else {
             $this->mNumRows = mysqli_affected_rows($this->mDb);
@@ -287,16 +297,17 @@ class DbLib{
     	}
     }
     //验证数据库配置文件信息
-    function authConfig($config){
-    	if(!is_array($config)){
-    		if(is_array($this->config)) $config = $this->config;
-    		else stop('db_config format error','DB');
-    	}
-    	foreach($this->mConfigArr as $k=>$v){
-    		if( !$config[$v] ) stop('db_config para error','DB');
-    	}
-    	 
-    	return $config;
+    function authConfig($db_key){
+//    	if(!is_array($config)){
+//    		if(is_array($this->config)) $config = $this->config;
+//    		else ExceptionFrameLib::throwErr('db_config format error','DB');
+//    	}
+//    	foreach($this->mConfigArr as $k=>$v){
+//    		if( !$config[$v] ) ExceptionFrameLib::throwErr('db_config para error','DB');
+//    	}
+//        var_dump(APP_CONFIG);exit;
+        return $GLOBALS['db_config'][$db_key];
+//    	return $config;
     }
     //验证execute方法，只允许执行update 和 delete 且   包含 limit 且 不能操作大于100行
     function authExecute($str){
@@ -305,24 +316,24 @@ class DbLib{
     	if('insert' == $tmp_str)return 1;
     	if($tmp_str != 'delete' && $tmp_str != 'update'){
     		echo $str;
-    		stop('execute func method: <update> or <delete>','DB');
+    		ExceptionFrameLib::throwErr('execute func method: <update> or <delete>');
     	}
     	 
     	$location = strpos($str,'limit');
     	if( $location === false){
     		echo $str;
-    		stop('execute func update or delete : required <limit>','DB');
+    		ExceptionFrameLib::throwErr('execute func update or delete : required <limit>');
     	}
     	 
     	if(strpos($str,'where') === false){
     		echo $str;
-    		stop('execute func update or delete : required <where>','DB');
+    		ExceptionFrameLib::throwErr('execute func update or delete : required <where>');
     	}
     	 
 //    	$tmp_str2 = trim(substr($str, $location + 6 ));
 //    	if($tmp_str2 > 100){
 //    		echo $str;
-//    		stop('execute func update or delete : limit numbers < 100','DB');
+//    		ExceptionFrameLib::throwErr('execute func update or delete : limit numbers < 100','DB');
 //    	}
     }
     
@@ -557,7 +568,7 @@ class DbLib{
     		$table = $this->showTablesList();
     	
     	if(!is_array($table))
-    		stop('table must array!'.'DB');
+            ExceptionFrameLib::throwErr('table must array!'.'DB');
     	
     	$rs = array();
     	foreach($table as $k=>$v){
@@ -586,7 +597,7 @@ class DbLib{
     	if(!$table)
     		$table = $this->showTablesList();
     	if(!is_array($table))
-    		stop('table must array!'.'DB');
+    		ExceptionFrameLib::throwErr('table must array!'.'DB');
 
     	$rs = array();
     	foreach($table as $k=>$v){
