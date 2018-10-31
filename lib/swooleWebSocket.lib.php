@@ -22,7 +22,7 @@ class SwooleWebSocketLib{
 
         eo('ip'.$this->_ip.",port:".$this->_port);
 
-        //创建websocket服务器对象，监听0.0.0.0:9502端口
+        //创建websocket对象
         //SWOOLE_PROCESS 多进程模式
         //TCP 类型的连接,IPV4
 
@@ -33,85 +33,89 @@ class SwooleWebSocketLib{
 
         eo('set config ',$rs);
         try{
-
+            //监听WebSocket连接打开事件.握手完成后，调用这个方法
+            $server->on('open', $this->onOpen());
+            //监听WebSocket消息事件
+            $server->on('message', $this->onMessage());
+            //监听WebSocket连接关闭事件
+            $server->on('close',$this->onClose());
         }catch( Exception $e ){
 
         }
 
-        //监听WebSocket连接打开事件.握手完成后，调用这个方法
-        $server->on('open', 'onOpen');
-        //监听WebSocket消息事件
-        $server->on('message', 'onMessage' );
-        //监听WebSocket连接关闭事件
-        $server->on('close','onClose');
-
         $server->start();
     }
 
-}
-//建立SOCKET 成功后
-function onOpen(){
-    $argv = func_get_args();
-    $server = $argv[0] ;
-    $request = $argv[1];
+    //建立SOCKET 成功后
+    function onOpen(){
+        $argv = func_get_args();
+        var_dump($argv);exit;
+//        $server = $argv[0] ;
+//        $request = $argv[1];
 
-    eo("a new WS connect,fd:{$request->fd}\n");
-    //$request->fd;
-    //$request->head;
-    //$request->server;
-    //$request->data;
-    //var_dump($request);
-
-}
-//关闭操作
-function onClose(){
-    $argv = func_get_args();
-    $server = $argv[0] ;
-    $fd = $argv[1];
-
-    echo "client-{$fd} is closed\n";
-}
-//C向S端发送数据
-function onMessage(){
-
-    $argv = func_get_args();
-
-
-
-    $server = $argv[0] ;
-
-    $frame = $argv[1];
-
-    echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
-
-    if(! $frame->data){
-
-        return false;
+//        eo("a new WS connect,fd:{$request->fd}\n");
+        //$request->fd;
+        //$request->head;
+        //$request->server;
+        //$request->data;
+        //var_dump($request);
 
     }
 
-    $class = new Server($server,null,$frame,null);
-    $class->connect();
+    //关闭操作
+    function onClose(){
+        $argv = func_get_args();
+        $server = $argv[0] ;
+        $fd = $argv[1];
 
-    return 444;
-    //$msgIdArr = unpack('N',substr( $frame->data,0,4));
+        echo "client-{$fd} is closed\n";
+    }
 
-    //if($msgIdArr && $msgIdArr[1]){
-    //    $msgId = $msgIdArr[1];
-    //}
-    //var_dump($msgId);
-    //var_dump($GLOBALS['cnf_message'] [$msgId]);
+    //C向S端发送数据
+    function onMessage(){
 
-    //if(!$GLOBALS['cnf_message'] [$msgId]){
-    //    exit('msg id err');
-    //}
-    $className = $GLOBALS['cnf_message'] [$msgId]['mod'];
-    $class = new $className($server,null,$frame,null);
-    var_dump($class);
-    var_dump($GLOBALS['cnf_message'] [$msgId]['do']);
-    $me = $GLOBALS['cnf_message'] [$msgId]['do'];
-    $class->$me();
+        $argv = func_get_args();
 
-    $server->push($frame->fd, "this is server");
+
+
+        $server = $argv[0] ;
+
+        $frame = $argv[1];
+
+        echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+
+        if(! $frame->data){
+
+            return false;
+
+        }
+
+//        $class = new Server($server,null,$frame,null);
+//        $class->connect();
+
+//        return 444;
+        //$msgIdArr = unpack('N',substr( $frame->data,0,4));
+
+        //if($msgIdArr && $msgIdArr[1]){
+        //    $msgId = $msgIdArr[1];
+        //}
+        //var_dump($msgId);
+        //var_dump($GLOBALS['cnf_message'] [$msgId]);
+
+        //if(!$GLOBALS['cnf_message'] [$msgId]){
+        //    exit('msg id err');
+        //}
+//        $className = $GLOBALS['cnf_message'] [$msgId]['mod'];
+//        $class = new $className($server,null,$frame,null);
+//        var_dump($class);
+//        var_dump($GLOBALS['cnf_message'] [$msgId]['do']);
+//        $me = $GLOBALS['cnf_message'] [$msgId]['do'];
+//        $class->$me();
+//
+//        $server->push($frame->fd, "this is server");
+
+    }
 
 }
+
+
